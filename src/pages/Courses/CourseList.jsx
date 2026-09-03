@@ -8,6 +8,7 @@ import { Add, Edit, Delete, Search } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { courseService } from '../../services/courseService';
 import CourseFormModal from '../../components/courses/CourseFormModal';
+import RoleGate from '../../components/RoleGate'; // <-- IMPORT RoleGate
 
 function CourseList() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,9 +42,12 @@ function CourseList() {
 
   return (
     <Box>
+      {/* Header and Add Button - Only ADMIN and FACULTY can add */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h4">Courses</Typography>
-        <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Course</Button>
+        <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
+          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Course</Button>
+        </RoleGate>
       </Box>
 
       <Box sx={{ mb: 3 }}>
@@ -73,14 +77,21 @@ function CourseList() {
               <TableRow key={course.id} hover>
                 <TableCell><strong>{course.code}</strong></TableCell>
                 <TableCell>{course.title}</TableCell>
-                <TableCell>{course.departmentId}</TableCell> {/* We'll improve this later with a join! */}
+                <TableCell>{course.departmentId}</TableCell>
                 <TableCell>{course.credits}</TableCell>
                 <TableCell>
                   <Chip label={course.isElective ? 'Elective' : 'Core'} color={course.isElective ? 'warning' : 'primary'} size="small" />
                 </TableCell>
                 <TableCell>
-                  <IconButton color="secondary" onClick={() => handleEdit(course)}><Edit /></IconButton>
-                  <IconButton color="error" onClick={() => handleDelete(course.id)}><Delete /></IconButton>
+                  {/* Only ADMIN and FACULTY can edit */}
+                  <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
+                    <IconButton color="secondary" onClick={() => handleEdit(course)}><Edit /></IconButton>
+                  </RoleGate>
+
+                  {/* Only ADMIN can delete */}
+                  <RoleGate allowedRoles={['ADMIN']}>
+                    <IconButton color="error" onClick={() => handleDelete(course.id)}><Delete /></IconButton>
+                  </RoleGate>
                 </TableCell>
               </TableRow>
             ))}

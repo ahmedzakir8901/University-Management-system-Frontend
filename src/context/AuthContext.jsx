@@ -15,8 +15,17 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  const login = (email, password) => {
-    const mockUser = { id: 1, email: email, role: 'ADMIN', name: 'Admin User' };
+  // We will modify login to accept a role. 
+  // For testing, we can pass 'ADMIN', 'FACULTY', or 'STUDENT'
+  const login = (email, password, role = 'ADMIN') => {
+    // In the future, this will call the backend.
+    // For now, we just create a mock user.
+    const mockUser = {
+      id: 1,
+      email: email,
+      role: role, // <--- The role we pass in
+      name: email.split('@')[0], // Use part before @ as name
+    };
     localStorage.setItem('token', 'fake-jwt-token');
     localStorage.setItem('user', JSON.stringify(mockUser));
     setUser(mockUser);

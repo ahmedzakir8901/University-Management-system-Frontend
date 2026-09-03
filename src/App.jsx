@@ -3,7 +3,8 @@ import Login from './pages/Auth/Login';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import StudentList from './pages/Students/StudentList';
-import CourseList from './pages/Courses/CourseList'; // <--- Added import for Course
+import CourseList from './pages/Courses/CourseList';
+import FacultyList from './pages/Faculty/FacultyList'; // <--- NEW IMPORT ADDED
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -24,7 +25,8 @@ function App() {
         >
           <Route index element={<Dashboard />} />
           <Route path="students" element={<StudentList />} />
-          <Route path="courses" element={<CourseList />} /> {/* <--- Added Course Route */}
+          <Route path="courses" element={<CourseList />} />
+          <Route path="faculty" element={<FacultyList />} /> {/* <--- NEW ROUTE ADDED */}
         </Route>
       </Routes>
     </BrowserRouter>
