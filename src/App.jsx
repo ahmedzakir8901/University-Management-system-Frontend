@@ -2,7 +2,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Auth/Login';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
-import StudentList from './pages/Students/StudentList'; // <--- Import added here
+import StudentList from './pages/Students/StudentList';
+import CourseList from './pages/Courses/CourseList'; // <--- Added import for Course
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -22,7 +23,8 @@ function App() {
           }
         >
           <Route index element={<Dashboard />} />
-          <Route path="students" element={<StudentList />} /> {/* <--- New Route */}
+          <Route path="students" element={<StudentList />} />
+          <Route path="courses" element={<CourseList />} /> {/* <--- Added Course Route */}
         </Route>
       </Routes>
     </BrowserRouter>

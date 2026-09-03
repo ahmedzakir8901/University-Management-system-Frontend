@@ -1,3 +1,4 @@
+import { MenuBook } from '@mui/icons-material';
 import { Outlet } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Box, IconButton, Avatar, Menu, MenuItem, Divider } from '@mui/material';
 import { Dashboard as DashboardIcon, People, Logout } from '@mui/icons-material';
@@ -7,9 +8,11 @@ import { useAuth } from '../../context/AuthContext';
 
 const drawerWidth = 240;
 
+// FIXED: Removed the duplicate "Dashboard" and "Students" entries!
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
   { text: 'Students', icon: <People />, path: '/students' },
+  { text: 'Courses', icon: <MenuBook />, path: '/courses' },
 ];
 
 function DashboardLayout() {
