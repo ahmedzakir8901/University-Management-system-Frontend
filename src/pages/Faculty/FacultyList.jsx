@@ -7,6 +7,7 @@ import { Add, Edit, Delete, Search } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { facultyService } from '../../services/facultyService';
 import FacultyFormModal from '../../components/faculty/FacultyFormModal';
+import RoleGate from '../../components/RoleGate'; // <-- NEW IMPORT
 
 function FacultyList() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,9 +42,12 @@ function FacultyList() {
 
   return (
     <Box>
+      {/* Header and Add Button - Only ADMIN and FACULTY can add */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h4">Faculty</Typography>
-        <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Faculty</Button>
+        <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
+          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Faculty</Button>
+        </RoleGate>
       </Box>
 
       <Box sx={{ mb: 3 }}>
@@ -81,8 +85,15 @@ function FacultyList() {
                 <TableCell>{f.departmentId}</TableCell>
                 <TableCell>{f.specialization}</TableCell>
                 <TableCell>
-                  <IconButton color="secondary" onClick={() => handleEdit(f)}><Edit /></IconButton>
-                  <IconButton color="error" onClick={() => handleDelete(f.id)}><Delete /></IconButton>
+                  {/* Only ADMIN and FACULTY can edit */}
+                  <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
+                    <IconButton color="secondary" onClick={() => handleEdit(f)}><Edit /></IconButton>
+                  </RoleGate>
+
+                  {/* Only ADMIN can delete */}
+                  <RoleGate allowedRoles={['ADMIN']}>
+                    <IconButton color="error" onClick={() => handleDelete(f.id)}><Delete /></IconButton>
+                  </RoleGate>
                 </TableCell>
               </TableRow>
             ))}
