@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Box, IconButton, Avatar, Menu, MenuItem, Divider } from '@mui/material';
-import { Dashboard as DashboardIcon, People, Logout, School, Event, AccountBalance, MenuBook, LocalLibrary } from '@mui/icons-material'; // <--- Added LocalLibrary icon
+import { Dashboard as DashboardIcon, People, Logout, School, Event, AccountBalance, MenuBook, LocalLibrary, Notifications } from '@mui/icons-material'; // <--- Added Notifications icon
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -14,7 +14,8 @@ const menuItems = [
   { text: 'Faculty', icon: <School />, path: '/faculty' },
   { text: 'Attendance', icon: <Event />, path: '/attendance' },
   { text: 'Finance', icon: <AccountBalance />, path: '/finance' },
-  { text: 'Library', icon: <LocalLibrary />, path: '/library' }, // <--- Added Library menu item
+  { text: 'Library', icon: <LocalLibrary />, path: '/library' },
+  { text: 'Notifications', icon: <Notifications />, path: '/notifications' }, // <--- Added Notifications menu item
 ];
 
 function DashboardLayout() {

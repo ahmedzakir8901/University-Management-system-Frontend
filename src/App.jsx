@@ -7,7 +7,8 @@ import CourseList from './pages/Courses/CourseList';
 import FacultyList from './pages/Faculty/FacultyList';
 import AttendancePage from './pages/Attendance/AttendancePage';
 import FinancePage from './pages/Finance/FinancePage';
-import LibraryPage from './pages/Library/LibraryPage'; // <--- NEW IMPORT ADDED
+import LibraryPage from './pages/Library/LibraryPage';
+import NotificationsPage from './pages/Notifications/NotificationsPage'; // <--- NEW IMPORT ADDED
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -30,7 +31,8 @@ function App() {
           <Route path="faculty" element={<FacultyList />} />
           <Route path="attendance" element={<AttendancePage />} />
           <Route path="finance" element={<FinancePage />} />
-          <Route path="library" element={<LibraryPage />} /> {/* <--- NEW ROUTE ADDED */}
+          <Route path="library" element={<LibraryPage />} />
+          <Route path="notifications" element={<NotificationsPage />} /> {/* <--- NEW ROUTE ADDED */}
         </Route>
       </Routes>
     </BrowserRouter>
