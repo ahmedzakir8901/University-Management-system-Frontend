@@ -1,21 +1,20 @@
-import { MenuBook } from '@mui/icons-material';
 import { Outlet } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Box, IconButton, Avatar, Menu, MenuItem, Divider } from '@mui/material';
-import { Dashboard as DashboardIcon, People, Logout, School, Event, AccountBalance } from '@mui/icons-material'; // <--- Added AccountBalance icon here
+import { Dashboard as DashboardIcon, People, Logout, School, Event, AccountBalance, MenuBook, LocalLibrary } from '@mui/icons-material'; // <--- Added LocalLibrary icon
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const drawerWidth = 240;
 
-// FIXED: Removed the duplicate "Dashboard" and "Students" entries!
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
   { text: 'Students', icon: <People />, path: '/students' },
   { text: 'Courses', icon: <MenuBook />, path: '/courses' },
   { text: 'Faculty', icon: <School />, path: '/faculty' },
   { text: 'Attendance', icon: <Event />, path: '/attendance' },
-  { text: 'Finance', icon: <AccountBalance />, path: '/finance' }, // <--- Added Finance menu item
+  { text: 'Finance', icon: <AccountBalance />, path: '/finance' },
+  { text: 'Library', icon: <LocalLibrary />, path: '/library' }, // <--- Added Library menu item
 ];
 
 function DashboardLayout() {
