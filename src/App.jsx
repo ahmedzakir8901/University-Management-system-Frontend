@@ -4,7 +4,8 @@ import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import StudentList from './pages/Students/StudentList';
 import CourseList from './pages/Courses/CourseList';
-import FacultyList from './pages/Faculty/FacultyList'; // <--- NEW IMPORT ADDED
+import FacultyList from './pages/Faculty/FacultyList';
+import AttendancePage from './pages/Attendance/AttendancePage'; // <--- NEW IMPORT ADDED
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -26,7 +27,8 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="students" element={<StudentList />} />
           <Route path="courses" element={<CourseList />} />
-          <Route path="faculty" element={<FacultyList />} /> {/* <--- NEW ROUTE ADDED */}
+          <Route path="faculty" element={<FacultyList />} />
+          <Route path="attendance" element={<AttendancePage />} /> {/* <--- NEW ROUTE ADDED */}
         </Route>
       </Routes>
     </BrowserRouter>

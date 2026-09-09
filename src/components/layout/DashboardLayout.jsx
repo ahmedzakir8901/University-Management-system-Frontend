@@ -1,7 +1,7 @@
 import { MenuBook } from '@mui/icons-material';
 import { Outlet } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Box, IconButton, Avatar, Menu, MenuItem, Divider } from '@mui/material';
-import { Dashboard as DashboardIcon, People, Logout, School } from '@mui/icons-material'; // <--- Added School icon here
+import { Dashboard as DashboardIcon, People, Logout, School, Event } from '@mui/icons-material'; // <--- Added Event icon here
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -13,7 +13,8 @@ const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
   { text: 'Students', icon: <People />, path: '/students' },
   { text: 'Courses', icon: <MenuBook />, path: '/courses' },
-  { text: 'Faculty', icon: <School />, path: '/faculty' }, // <--- Added Faculty menu item
+  { text: 'Faculty', icon: <School />, path: '/faculty' },
+  { text: 'Attendance', icon: <Event />, path: '/attendance' }, // <--- Added Attendance menu item
 ];
 
 function DashboardLayout() {
