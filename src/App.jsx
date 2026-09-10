@@ -16,7 +16,8 @@ import EnrollmentsPage from './pages/Enrollments/EnrollmentsPage';
 import GradesPage from './pages/Grades/GradesPage';
 import ExamsPage from './pages/Exams/ExamsPage';
 import HostelPage from './pages/Hostel/HostelPage';
-import EvaluationsPage from './pages/Evaluations/EvaluationsPage'; // <--- NEW IMPORT ADDED
+import EvaluationsPage from './pages/Evaluations/EvaluationsPage';
+import AuditLogsPage from './pages/AuditLogs/AuditLogsPage'; // <--- NEW IMPORT ADDED
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -49,6 +50,7 @@ function App() {
           <Route path="exams" element={<ExamsPage />} /> {/* <--- NEW ROUTE ADDED */}
           <Route path="hostel" element={<HostelPage />} /> {/* <--- NEW ROUTE ADDED */}
           <Route path="evaluations" element={<EvaluationsPage />} /> {/* <--- NEW ROUTE ADDED */}
+          <Route path="audit-logs" element={<AuditLogsPage />} /> {/* <--- NEW ROUTE ADDED */}
         </Route>
       </Routes>
     </BrowserRouter>

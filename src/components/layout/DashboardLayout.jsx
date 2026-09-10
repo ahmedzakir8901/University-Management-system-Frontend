@@ -1,32 +1,34 @@
 import { Outlet } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Box, IconButton, Avatar, Menu, MenuItem, Divider } from '@mui/material';
-import { Dashboard as DashboardIcon, People, Logout, School, Event, AccountBalance, MenuBook, LocalLibrary, Notifications, Settings, Apartment, Class, HowToReg, Grade } from '@mui/icons-material'; // <--- Added Grade icon
+import {
+  Dashboard as DashboardIcon, People, Logout, School, Event, AccountBalance,
+  MenuBook, LocalLibrary, Notifications, Settings, Apartment, Class, HowToReg,
+  Grade, EventNote, Home, Reviews, History
+} from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { EventNote } from '@mui/icons-material';
-import { Home } from '@mui/icons-material';
-import { Reviews } from '@mui/icons-material';
 
 const drawerWidth = 240;
 
 const menuItems = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-  { text: 'Students', icon: <People />, path: '/students' },
-  { text: 'Courses', icon: <MenuBook />, path: '/courses' },
-  { text: 'Faculty', icon: <School />, path: '/faculty' },
-  { text: 'Sections', icon: <Class />, path: '/sections' },
-  { text: 'Enrollments', icon: <HowToReg />, path: '/enrollments' },
-  { text: 'Grades', icon: <Grade />, path: '/grades' }, // <--- NEW: Grades module
-  { text: 'Attendance', icon: <Event />, path: '/attendance' },
-  { text: 'Finance', icon: <AccountBalance />, path: '/finance' },
-  { text: 'Library', icon: <LocalLibrary />, path: '/library' },
-  { text: 'Notifications', icon: <Notifications />, path: '/notifications' },
-  { text: 'Infrastructure', icon: <Apartment />, path: '/infrastructure' },
-  { text: 'Settings', icon: <Settings />, path: '/settings' },
-  { text: 'Exams', icon: <EventNote />, path: '/exams' },
-  { text: 'Hostel', icon: <Home />, path: '/hostel' },
-  { text: 'Evaluations', icon: <Reviews />, path: '/evaluations' } // <--- NEW: Evaluations module
+  { text: 'Dashboard', icon: <DashboardIcon />, path: '/', roles: ['ADMIN', 'FACULTY', 'STUDENT'] },
+  { text: 'Students', icon: <People />, path: '/students', roles: ['ADMIN', 'FACULTY'] },
+  { text: 'Courses', icon: <MenuBook />, path: '/courses', roles: ['ADMIN', 'FACULTY'] },
+  { text: 'Faculty', icon: <School />, path: '/faculty', roles: ['ADMIN'] },
+  { text: 'Sections', icon: <Class />, path: '/sections', roles: ['ADMIN', 'FACULTY'] },
+  { text: 'Enrollments', icon: <HowToReg />, path: '/enrollments', roles: ['ADMIN', 'FACULTY'] },
+  { text: 'Grades', icon: <Grade />, path: '/grades', roles: ['ADMIN', 'FACULTY', 'STUDENT'] },
+  { text: 'Attendance', icon: <Event />, path: '/attendance', roles: ['ADMIN', 'FACULTY'] },
+  { text: 'Exams', icon: <EventNote />, path: '/exams', roles: ['ADMIN', 'FACULTY'] },
+  { text: 'Finance', icon: <AccountBalance />, path: '/finance', roles: ['ADMIN'] },
+  { text: 'Library', icon: <LocalLibrary />, path: '/library', roles: ['ADMIN', 'FACULTY', 'STUDENT'] },
+  { text: 'Hostel', icon: <Home />, path: '/hostel', roles: ['ADMIN'] },
+  { text: 'Evaluations', icon: <Reviews />, path: '/evaluations', roles: ['ADMIN', 'STUDENT'] },
+  { text: 'Notifications', icon: <Notifications />, path: '/notifications', roles: ['ADMIN', 'FACULTY', 'STUDENT'] },
+  { text: 'Infrastructure', icon: <Apartment />, path: '/infrastructure', roles: ['ADMIN'] },
+  { text: 'Settings', icon: <Settings />, path: '/settings', roles: ['ADMIN'] },
+  { text: 'Audit Logs', icon: <History />, path: '/audit-logs', roles: ['ADMIN'] },
 ];
 
 function DashboardLayout() {
@@ -42,12 +44,15 @@ function DashboardLayout() {
     navigate('/login');
   };
 
+  // Filter menu items based on the user's role
+  const visibleItems = menuItems.filter(item => item.roles.includes(user?.role));
+
   const drawerContent = (
     <Box>
       <Toolbar><Typography variant="h6" noWrap>University MS</Typography></Toolbar>
       <Divider />
       <List>
-        {menuItems.map((item) => (
+        {visibleItems.map((item) => (
           <ListItemButton
             key={item.text}
             onClick={() => navigate(item.path)}
