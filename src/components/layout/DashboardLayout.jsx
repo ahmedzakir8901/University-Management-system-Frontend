@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { EventNote } from '@mui/icons-material';
+import { Home } from '@mui/icons-material';
 
 const drawerWidth = 240;
 
@@ -23,6 +24,7 @@ const menuItems = [
   { text: 'Infrastructure', icon: <Apartment />, path: '/infrastructure' },
   { text: 'Settings', icon: <Settings />, path: '/settings' },
   { text: 'Exams', icon: <EventNote />, path: '/exams' },
+  { text: 'Hostel', icon: <Home />, path: '/hostel' }, // <--- NEW: Hostel module
   
 ];
 

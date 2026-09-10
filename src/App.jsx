@@ -14,7 +14,8 @@ import InfrastructurePage from './pages/Infrastructure/InfrastructurePage';
 import SectionsPage from './pages/Sections/SectionsPage';
 import EnrollmentsPage from './pages/Enrollments/EnrollmentsPage';
 import GradesPage from './pages/Grades/GradesPage';
-import ExamsPage from './pages/Exams/ExamsPage'; // <--- NEW IMPORT ADDED
+import ExamsPage from './pages/Exams/ExamsPage';
+import HostelPage from './pages/Hostel/HostelPage'; // <--- NEW IMPORT ADDED
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
           <Route path="settings" element={<SettingsPage />} />
           <Route path="infrastructure" element={<InfrastructurePage />} />
           <Route path="exams" element={<ExamsPage />} /> {/* <--- NEW ROUTE ADDED */}
+          <Route path="hostel" element={<HostelPage />} /> {/* <--- NEW ROUTE ADDED */}
         </Route>
       </Routes>
     </BrowserRouter>
