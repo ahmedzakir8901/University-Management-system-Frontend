@@ -1,9 +1,10 @@
 import { Outlet } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Box, IconButton, Avatar, Menu, MenuItem, Divider } from '@mui/material';
-import { Dashboard as DashboardIcon, People, Logout, School, Event, AccountBalance, MenuBook, LocalLibrary, Notifications } from '@mui/icons-material'; // <--- Added Notifications icon
+import { Dashboard as DashboardIcon, People, Logout, School, Event, AccountBalance, MenuBook, LocalLibrary, Notifications, Settings, Apartment, Class, HowToReg, Grade } from '@mui/icons-material'; // <--- Added Grade icon
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { EventNote } from '@mui/icons-material';
 
 const drawerWidth = 240;
 
@@ -12,10 +13,17 @@ const menuItems = [
   { text: 'Students', icon: <People />, path: '/students' },
   { text: 'Courses', icon: <MenuBook />, path: '/courses' },
   { text: 'Faculty', icon: <School />, path: '/faculty' },
+  { text: 'Sections', icon: <Class />, path: '/sections' },
+  { text: 'Enrollments', icon: <HowToReg />, path: '/enrollments' },
+  { text: 'Grades', icon: <Grade />, path: '/grades' }, // <--- NEW: Grades module
   { text: 'Attendance', icon: <Event />, path: '/attendance' },
   { text: 'Finance', icon: <AccountBalance />, path: '/finance' },
   { text: 'Library', icon: <LocalLibrary />, path: '/library' },
-  { text: 'Notifications', icon: <Notifications />, path: '/notifications' }, // <--- Added Notifications menu item
+  { text: 'Notifications', icon: <Notifications />, path: '/notifications' },
+  { text: 'Infrastructure', icon: <Apartment />, path: '/infrastructure' },
+  { text: 'Settings', icon: <Settings />, path: '/settings' },
+  { text: 'Exams', icon: <EventNote />, path: '/exams' },
+  
 ];
 
 function DashboardLayout() {

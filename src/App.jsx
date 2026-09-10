@@ -8,7 +8,13 @@ import FacultyList from './pages/Faculty/FacultyList';
 import AttendancePage from './pages/Attendance/AttendancePage';
 import FinancePage from './pages/Finance/FinancePage';
 import LibraryPage from './pages/Library/LibraryPage';
-import NotificationsPage from './pages/Notifications/NotificationsPage'; // <--- NEW IMPORT ADDED
+import NotificationsPage from './pages/Notifications/NotificationsPage';
+import SettingsPage from './pages/Settings/SettingsPage';
+import InfrastructurePage from './pages/Infrastructure/InfrastructurePage';
+import SectionsPage from './pages/Sections/SectionsPage';
+import EnrollmentsPage from './pages/Enrollments/EnrollmentsPage';
+import GradesPage from './pages/Grades/GradesPage';
+import ExamsPage from './pages/Exams/ExamsPage'; // <--- NEW IMPORT ADDED
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -29,10 +35,16 @@ function App() {
           <Route path="students" element={<StudentList />} />
           <Route path="courses" element={<CourseList />} />
           <Route path="faculty" element={<FacultyList />} />
+          <Route path="sections" element={<SectionsPage />} />
+          <Route path="enrollments" element={<EnrollmentsPage />} />
+          <Route path="grades" element={<GradesPage />} /> {/* <--- NEW ROUTE ADDED */}
           <Route path="attendance" element={<AttendancePage />} />
           <Route path="finance" element={<FinancePage />} />
           <Route path="library" element={<LibraryPage />} />
-          <Route path="notifications" element={<NotificationsPage />} /> {/* <--- NEW ROUTE ADDED */}
+          <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="infrastructure" element={<InfrastructurePage />} />
+          <Route path="exams" element={<ExamsPage />} /> {/* <--- NEW ROUTE ADDED */}
         </Route>
       </Routes>
     </BrowserRouter>
