@@ -9,7 +9,7 @@ import { studentService } from '../../services/studentService';
 import StudentFormModal from '../../components/students/StudentFormModal';
 import StudentDetailsModal from '../../components/students/StudentDetailsModal';
 import RoleGate from '../../components/RoleGate';
-import ExportButton from '../../components/common/ExportButton';
+import ExportButton from '../../components/common/ExportButton'; // <-- NEW IMPORT
 
 function StudentList() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -57,16 +57,23 @@ function StudentList() {
 
   return (
     <Box>
+      {/* Header, Export, and Add buttons */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
         <Typography variant="h4">Students</Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
+          {/* Export button — visible to everyone */}
           <ExportButton
             title="Students Report"
             fileName="students_report"
             columns={['Roll No', 'First Name', 'Last Name', 'Email', 'Semester', 'CGPA', 'Status']}
             rows={filteredStudents.map(s => [
-              s.rollNumber, s.firstName, s.lastName, s.email,
-              s.currentSemester, s.cgpa, s.academicStatus,
+              s.rollNumber,
+              s.firstName,
+              s.lastName,
+              s.email,
+              s.currentSemester,
+              s.cgpa,
+              s.academicStatus,
             ])}
           />
           <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
@@ -80,7 +87,9 @@ function StudentList() {
           fullWidth variant="outlined" placeholder="Search by name or roll number..."
           value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
           slotProps={{
-            input: { startAdornment: (<InputAdornment position="start"><Search /></InputAdornment>) }
+            input: {
+              startAdornment: (<InputAdornment position="start"><Search /></InputAdornment>)
+            }
           }}
         />
       </Box>
@@ -110,12 +119,23 @@ function StudentList() {
                   <Chip label={student.academicStatus} color={student.academicStatus === 'ACTIVE' ? 'success' : 'warning'} size="small" />
                 </TableCell>
                 <TableCell>
-                  <IconButton color="primary" onClick={() => handleView(student.id)}><Visibility /></IconButton>
+                  {/* Everyone can view */}
+                  <IconButton color="primary" onClick={() => handleView(student.id)}>
+                    <Visibility />
+                  </IconButton>
+
+                  {/* Only ADMIN and FACULTY can edit */}
                   <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
-                    <IconButton color="secondary" onClick={() => handleEdit(student)}><Edit /></IconButton>
+                    <IconButton color="secondary" onClick={() => handleEdit(student)}>
+                      <Edit />
+                    </IconButton>
                   </RoleGate>
+
+                  {/* Only ADMIN can delete */}
                   <RoleGate allowedRoles={['ADMIN']}>
-                    <IconButton color="error" onClick={() => handleDelete(student.id)}><Delete /></IconButton>
+                    <IconButton color="error" onClick={() => handleDelete(student.id)}>
+                      <Delete />
+                    </IconButton>
                   </RoleGate>
                 </TableCell>
               </TableRow>
@@ -125,7 +145,12 @@ function StudentList() {
       </TableContainer>
 
       <StudentFormModal open={openFormModal} onClose={() => setOpenFormModal(false)} student={editingStudent} />
-      <StudentDetailsModal open={!!viewingStudentId} onClose={() => setViewingStudentId(null)} studentId={viewingStudentId} />
+
+      <StudentDetailsModal 
+        open={!!viewingStudentId} 
+        onClose={() => setViewingStudentId(null)} 
+        studentId={viewingStudentId} 
+      />
     </Box>
   );
 }
