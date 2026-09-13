@@ -3,7 +3,7 @@ import {
   Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, Button, IconButton, CircularProgress, Alert,
   Dialog, DialogTitle, DialogContent, DialogActions, Grid, FormControl, InputLabel, Select, MenuItem,
-  Chip, LinearProgress
+  Chip, LinearProgress, TextField
 } from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -13,6 +13,7 @@ import * as yup from 'yup';
 import { gradeService } from '../../../services/gradeService';
 import { toast } from 'react-hot-toast';
 import RoleGate from '../../../components/RoleGate';
+import ExportButton from '../../../components/common/ExportButton'; // <-- NEW
 
 const ITEM_TYPES = ['ASSIGNMENT', 'QUIZ', 'MIDTERM', 'FINAL_EXAM', 'PROJECT', 'PRESENTATION'];
 
@@ -109,19 +110,25 @@ function GradeItemsTab() {
     }
   };
 
-  // Group weightage by section for validation display
-  const getSectionTotalWeight = (sectionId) => {
-    return (gradeItems || [])
-      .filter(g => g.sectionId === sectionId)
-      .reduce((sum, g) => sum + Number(g.weightagePercent), 0);
-  };
-
   if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>;
   if (error) return <Alert severity="error">Error loading grade items.</Alert>;
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
+        <ExportButton
+          title="Grade Items Report"
+          fileName="grade_items_report"
+          columns={['Section', 'Title', 'Type', 'Max Marks', 'Weightage', 'Due Date']}
+          rows={(gradeItems || []).map(g => [
+            getSectionLabel(g.sectionId),
+            g.title,
+            g.itemType,
+            g.maxMarks,
+            `${g.weightagePercent}%`,
+            new Date(g.dueDate).toLocaleString(),
+          ])}
+        />
         <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
           <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Grade Item</Button>
         </RoleGate>

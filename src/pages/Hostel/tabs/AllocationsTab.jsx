@@ -13,7 +13,8 @@ import * as yup from 'yup';
 import { hostelService } from '../../../services/hostelService';
 import { toast } from 'react-hot-toast';
 import RoleGate from '../../../components/RoleGate';
-import { useAuth } from '../../../context/AuthContext'; // <-- NEW IMPORT
+import { useAuth } from '../../../context/AuthContext';
+import ExportButton from '../../../components/common/ExportButton'; // <-- NEW
 
 const schema = yup.object().shape({
   studentId: yup.number().required('Student required'),
@@ -21,8 +22,8 @@ const schema = yup.object().shape({
 });
 
 function AllocationsTab() {
-  const { user } = useAuth(); // <-- Get current user
-  const isStudent = user?.role === 'STUDENT'; // <-- Shortcut for readability
+  const { user } = useAuth();
+  const isStudent = user?.role === 'STUDENT';
 
   const [filterStatus, setFilterStatus] = useState('ACTIVE');
   const [openModal, setOpenModal] = useState(false);
@@ -92,14 +93,8 @@ function AllocationsTab() {
     return `${h?.name || 'N/A'} - Room ${r.roomNumber}`;
   };
 
-  // UPDATED: Filter by role AND status
   const filtered = (allocations || []).filter(a => {
-    // Students only see their own allocation, ignoring the status filter
-    if (isStudent) {
-      return a.studentId === user.id;
-    }
-
-    // Admin: apply the status filter
+    if (isStudent) return a.studentId === user.id;
     if (filterStatus === 'ACTIVE') return !a.vacatedDate;
     if (filterStatus === 'VACATED') return !!a.vacatedDate;
     return true;
@@ -111,7 +106,6 @@ function AllocationsTab() {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, gap: 2 }}>
-        {/* Status filter: hidden for students */}
         {!isStudent ? (
           <FormControl size="small" sx={{ minWidth: 200 }}>
             <InputLabel>Status</InputLabel>
@@ -122,26 +116,49 @@ function AllocationsTab() {
             </Select>
           </FormControl>
         ) : (
-          <Box /> // Empty spacer for student view
+          <Box />
         )}
-
-        {/* Allocate Room button: admin only */}
-        <RoleGate allowedRoles={['ADMIN']}>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Allocate Room</Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Hostel Allocations Report"
+            fileName="hostel_allocations_report"
+            columns={
+              isStudent
+                ? ['Room', 'Allocated Date', 'Vacated Date', 'Status']
+                : ['Student', 'Room', 'Allocated Date', 'Vacated Date', 'Status']
+            }
+            rows={
+              isStudent
+                ? filtered.map(a => [
+                    getRoomLabel(a.hostelRoomId),
+                    a.allocatedDate,
+                    a.vacatedDate || '-',
+                    a.vacatedDate ? 'VACATED' : 'ACTIVE',
+                  ])
+                : filtered.map(a => [
+                    getStudentLabel(a.studentId),
+                    getRoomLabel(a.hostelRoomId),
+                    a.allocatedDate,
+                    a.vacatedDate || '-',
+                    a.vacatedDate ? 'VACATED' : 'ACTIVE',
+                  ])
+            }
+          />
+          <RoleGate allowedRoles={['ADMIN']}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Allocate Room</Button>
+          </RoleGate>
+        </Box>
       </Box>
 
       <TableContainer component={Paper} variant="outlined">
         <Table>
           <TableHead>
             <TableRow>
-              {/* Hide "Student" column for students */}
               {!isStudent && <TableCell>Student</TableCell>}
               <TableCell>Room</TableCell>
               <TableCell>Allocated Date</TableCell>
               <TableCell>Vacated Date</TableCell>
               <TableCell>Status</TableCell>
-              {/* Hide "Actions" column for students (they have nothing to click) */}
               {!isStudent && <TableCell>Actions</TableCell>}
             </TableRow>
           </TableHead>

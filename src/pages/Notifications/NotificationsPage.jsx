@@ -5,18 +5,17 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationService } from '../../services/notificationService';
 import AnnouncementFormModal from '../../components/notifications/AnnouncementFormModal';
 import RoleGate from '../../components/RoleGate';
+import ExportButton from '../../components/common/ExportButton'; // <-- NEW
 import { formatDate } from '../../utils/formatDate';
 
 function NotificationsPage() {
   const [openModal, setOpenModal] = useState(false);
 
-  // Fetch Announcements
   const { data: announcements, isLoading, error } = useQuery({
     queryKey: ['announcements'],
     queryFn: notificationService.getAnnouncements,
   });
 
-  // Fetch Notifications
   const { data: notifications } = useQuery({
     queryKey: ['notifications'],
     queryFn: notificationService.getNotifications,
@@ -33,15 +32,28 @@ function NotificationsPage() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, gap: 2, flexWrap: 'wrap' }}>
         <Typography variant="h4">Notifications & Announcements</Typography>
-        <RoleGate allowedRoles={['ADMIN', 'FACULTY', 'LIBRARIAN']}>
-          <Button variant="contained" startIcon={<Add />} onClick={() => setOpenModal(true)}>Post Announcement</Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Announcements Report"
+            fileName="announcements_report"
+            columns={['Title', 'Content', 'Target Role', 'Created By', 'Date']}
+            rows={(announcements || []).map(a => [
+              a.title,
+              a.content,
+              a.targetRole,
+              a.createdBy,
+              formatDate(a.createdAt),
+            ])}
+          />
+          <RoleGate allowedRoles={['ADMIN', 'FACULTY', 'LIBRARIAN']}>
+            <Button variant="contained" startIcon={<Add />} onClick={() => setOpenModal(true)}>Post Announcement</Button>
+          </RoleGate>
+        </Box>
       </Box>
 
       <Grid container spacing={3}>
-        {/* Announcements Section */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper elevation={2} sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
@@ -73,7 +85,6 @@ function NotificationsPage() {
           </Paper>
         </Grid>
 
-        {/* Notifications Section */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper elevation={2} sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>

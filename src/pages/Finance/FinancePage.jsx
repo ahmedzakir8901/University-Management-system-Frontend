@@ -10,11 +10,12 @@ import InvoiceFormModal from '../../components/finance/InvoiceFormModal';
 import PaymentFormModal from '../../components/finance/PaymentFormModal';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { formatDate } from '../../utils/formatDate';
-import RoleGate from '../../components/RoleGate'; // <-- NEW
-import { useAuth } from '../../context/AuthContext'; // <-- NEW
+import RoleGate from '../../components/RoleGate';
+import { useAuth } from '../../context/AuthContext';
+import ExportButton from '../../components/common/ExportButton'; // <-- NEW
 
 function FinancePage() {
-  const { user } = useAuth(); // <-- Get current user
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [openInvoiceModal, setOpenInvoiceModal] = useState(false);
   const [openPaymentModal, setOpenPaymentModal] = useState(false);
@@ -31,11 +32,8 @@ function FinancePage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['invoices'] }),
   });
 
-  // NEW: Filter invoices based on role
   const visibleInvoices = (invoices || []).filter((invoice) => {
-    // Admin sees everything
     if (user?.role === 'ADMIN') return true;
-    // Student sees only their own (matching by user.id)
     if (user?.role === 'STUDENT') return invoice.studentId === user.id;
     return false;
   });
@@ -47,16 +45,8 @@ function FinancePage() {
   if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}><CircularProgress /></Box>;
   if (error) return <Alert severity="error">Error loading invoices: {error.message}</Alert>;
 
-  const handleAddInvoice = () => {
-    setSelectedInvoice(null);
-    setOpenInvoiceModal(true);
-  };
-
-  const handleMakePayment = (invoice) => {
-    setSelectedInvoice(invoice);
-    setOpenPaymentModal(true);
-  };
-
+  const handleAddInvoice = () => { setSelectedInvoice(null); setOpenInvoiceModal(true); };
+  const handleMakePayment = (invoice) => { setSelectedInvoice(invoice); setOpenPaymentModal(true); };
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this invoice?')) deleteMutation.mutate(id);
   };
@@ -75,17 +65,30 @@ function FinancePage() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        {/* Dynamic title based on role */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
         <Typography variant="h4">
           {isStudent ? 'My Invoices' : 'Finance Management'}
         </Typography>
-        {/* Only Admin can generate invoices */}
-        <RoleGate allowedRoles={['ADMIN']}>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAddInvoice}>
-            Generate Invoice
-          </Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Invoices Report"
+            fileName="invoices_report"
+            columns={['Invoice #', 'Student ID', 'Term', 'Amount', 'Due Date', 'Status']}
+            rows={filteredInvoices.map(inv => [
+              inv.invoiceNumber,
+              inv.studentId,
+              inv.termId,
+              formatCurrency(inv.totalAmount),
+              formatDate(inv.dueDate),
+              inv.status,
+            ])}
+          />
+          <RoleGate allowedRoles={['ADMIN']}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleAddInvoice}>
+              Generate Invoice
+            </Button>
+          </RoleGate>
+        </Box>
       </Box>
 
       <Box sx={{ mb: 3 }}>
@@ -103,7 +106,6 @@ function FinancePage() {
           <TableHead>
             <TableRow>
               <TableCell>Invoice #</TableCell>
-              {/* Hide Student ID column for students */}
               {!isStudent && <TableCell>Student ID</TableCell>}
               <TableCell>Term</TableCell>
               <TableCell>Amount</TableCell>
@@ -130,20 +132,14 @@ function FinancePage() {
                   <TableCell>{formatCurrency(invoice.totalAmount)}</TableCell>
                   <TableCell>{formatDate(invoice.dueDate)}</TableCell>
                   <TableCell>
-                    <Chip
-                      label={invoice.status.replace('_', ' ')}
-                      color={getStatusColor(invoice.status)}
-                      size="small"
-                    />
+                    <Chip label={invoice.status.replace('_', ' ')} color={getStatusColor(invoice.status)} size="small" />
                   </TableCell>
                   <TableCell>
-                    {/* Both Admin and Student can make payment (if not fully paid) */}
                     {invoice.status !== 'PAID' && (
                       <IconButton color="primary" onClick={() => handleMakePayment(invoice)} title="Make Payment">
                         <Payment />
                       </IconButton>
                     )}
-                    {/* Only Admin can delete */}
                     <RoleGate allowedRoles={['ADMIN']}>
                       <IconButton color="error" onClick={() => handleDelete(invoice.id)} title="Delete">
                         <Delete />
@@ -158,11 +154,7 @@ function FinancePage() {
       </TableContainer>
 
       <InvoiceFormModal open={openInvoiceModal} onClose={() => setOpenInvoiceModal(false)} />
-      <PaymentFormModal
-        open={openPaymentModal}
-        onClose={() => setOpenPaymentModal(false)}
-        invoice={selectedInvoice}
-      />
+      <PaymentFormModal open={openPaymentModal} onClose={() => setOpenPaymentModal(false)} invoice={selectedInvoice} />
     </Box>
   );
 }

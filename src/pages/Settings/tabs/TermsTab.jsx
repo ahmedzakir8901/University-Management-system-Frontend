@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, Button, IconButton, CircularProgress, Alert, TextField, Dialog,
   DialogTitle, DialogContent, DialogActions, Grid, Chip, FormControlLabel, Checkbox
 } from '@mui/material';
@@ -13,6 +13,7 @@ import { settingsService } from '../../../services/settingsService';
 import { formatDate } from '../../../utils/formatDate';
 import { toast } from 'react-hot-toast';
 import RoleGate from '../../../components/RoleGate';
+import ExportButton from '../../../components/common/ExportButton'; // <-- NEW
 
 const schema = yup.object().shape({
   name: yup.string().required('Name is required'),
@@ -92,7 +93,19 @@ function TermsTab() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
+        <ExportButton
+          title="Academic Terms Report"
+          fileName="academic_terms_report"
+          columns={['Term Code', 'Name', 'Start Date', 'End Date', 'Status']}
+          rows={(terms || []).map(t => [
+            t.termCode,
+            t.name,
+            formatDate(t.startDate),
+            formatDate(t.endDate),
+            t.isCurrent ? 'Current' : 'Inactive',
+          ])}
+        />
         <RoleGate allowedRoles={['ADMIN']}>
           <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Term</Button>
         </RoleGate>

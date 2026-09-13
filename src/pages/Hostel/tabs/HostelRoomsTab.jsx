@@ -13,6 +13,7 @@ import * as yup from 'yup';
 import { hostelService } from '../../../services/hostelService';
 import { toast } from 'react-hot-toast';
 import RoleGate from '../../../components/RoleGate';
+import ExportButton from '../../../components/common/ExportButton'; // <-- NEW
 
 const schema = yup.object().shape({
   hostelId: yup.number().required('Hostel is required'),
@@ -108,9 +109,22 @@ function HostelRoomsTab() {
             ))}
           </Select>
         </FormControl>
-        <RoleGate allowedRoles={['ADMIN']}>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Room</Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Hostel Rooms Report"
+            fileName="hostel_rooms_report"
+            columns={['Hostel', 'Room Number', 'Capacity', 'Monthly Rent']}
+            rows={filtered.map(r => [
+              getHostelName(r.hostelId),
+              r.roomNumber,
+              `${r.capacity} beds`,
+              `Rs. ${r.monthlyRent.toLocaleString()}`,
+            ])}
+          />
+          <RoleGate allowedRoles={['ADMIN']}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Room</Button>
+          </RoleGate>
+        </Box>
       </Box>
 
       <TableContainer component={Paper} variant="outlined">

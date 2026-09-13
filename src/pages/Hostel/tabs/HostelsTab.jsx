@@ -13,6 +13,7 @@ import * as yup from 'yup';
 import { hostelService } from '../../../services/hostelService';
 import { toast } from 'react-hot-toast';
 import RoleGate from '../../../components/RoleGate';
+import ExportButton from '../../../components/common/ExportButton'; // <-- NEW
 
 const HOSTEL_TYPES = ['MALE', 'FEMALE', 'COED'];
 
@@ -111,15 +112,29 @@ function HostelsTab() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, gap: 2 }}>
         <TextField
           size="small" placeholder="Search hostels or wardens..."
           value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
           slotProps={{ input: { startAdornment: (<InputAdornment position="start"><Search /></InputAdornment>) } }}
         />
-        <RoleGate allowedRoles={['ADMIN']}>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Hostel</Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Hostels Report"
+            fileName="hostels_report"
+            columns={['Name', 'Campus', 'Type', 'Warden', 'Contact']}
+            rows={filtered.map(h => [
+              h.name,
+              getCampusName(h.campusId),
+              h.type,
+              h.wardenName,
+              h.contactNumber,
+            ])}
+          />
+          <RoleGate allowedRoles={['ADMIN']}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Hostel</Button>
+          </RoleGate>
+        </Box>
       </Box>
 
       <TableContainer component={Paper} variant="outlined">

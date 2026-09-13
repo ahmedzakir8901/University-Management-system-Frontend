@@ -8,7 +8,8 @@ import { Add, Edit, Delete, Search } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { courseService } from '../../services/courseService';
 import CourseFormModal from '../../components/courses/CourseFormModal';
-import RoleGate from '../../components/RoleGate'; // <-- IMPORT RoleGate
+import RoleGate from '../../components/RoleGate';
+import ExportButton from '../../components/common/ExportButton'; // <-- NEW
 
 function CourseList() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,12 +43,26 @@ function CourseList() {
 
   return (
     <Box>
-      {/* Header and Add Button - Only ADMIN and FACULTY can add */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+      {/* Header with Export + Add buttons */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
         <Typography variant="h4">Courses</Typography>
-        <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Course</Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Courses Report"
+            fileName="courses_report"
+            columns={['Code', 'Title', 'Department ID', 'Credits', 'Type']}
+            rows={filteredCourses.map(c => [
+              c.code,
+              c.title,
+              c.departmentId,
+              c.credits,
+              c.isElective ? 'Elective' : 'Core',
+            ])}
+          />
+          <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Course</Button>
+          </RoleGate>
+        </Box>
       </Box>
 
       <Box sx={{ mb: 3 }}>
@@ -83,12 +98,9 @@ function CourseList() {
                   <Chip label={course.isElective ? 'Elective' : 'Core'} color={course.isElective ? 'warning' : 'primary'} size="small" />
                 </TableCell>
                 <TableCell>
-                  {/* Only ADMIN and FACULTY can edit */}
                   <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
                     <IconButton color="secondary" onClick={() => handleEdit(course)}><Edit /></IconButton>
                   </RoleGate>
-
-                  {/* Only ADMIN can delete */}
                   <RoleGate allowedRoles={['ADMIN']}>
                     <IconButton color="error" onClick={() => handleDelete(course.id)}><Delete /></IconButton>
                   </RoleGate>

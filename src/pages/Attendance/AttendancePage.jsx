@@ -7,28 +7,25 @@ import {
 import { Save } from '@mui/icons-material';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { attendanceService } from '../../services/attendanceService';
+import ExportButton from '../../components/common/ExportButton'; // <-- NEW
 import { toast } from 'react-hot-toast';
 
 function AttendancePage() {
-  // State for course, date, and the attendance record map
   const [selectedCourseId, setSelectedCourseId] = useState('');
-  const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split('T')[0]); // Default to today
-  const [attendanceMap, setAttendanceMap] = useState({}); // { studentId: 'PRESENT' }
+  const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
+  const [attendanceMap, setAttendanceMap] = useState({});
 
-  // 1. Fetch Courses for the dropdown
   const { data: courses = [] } = useQuery({
     queryKey: ['courses-for-attendance'],
     queryFn: attendanceService.getCourses,
   });
 
-  // 2. Fetch Students - ONLY when a course is selected (Dependent Fetching)
   const { data: students = [], isLoading, error } = useQuery({
     queryKey: ['students-by-course', selectedCourseId],
     queryFn: () => attendanceService.getStudentsByCourse(selectedCourseId),
-    enabled: !!selectedCourseId, // <-- This is the magic! It only runs if selectedCourseId is not empty.
+    enabled: !!selectedCourseId,
   });
 
-  // 3. Save Attendance Mutation
   const saveMutation = useMutation({
     mutationFn: attendanceService.saveAttendance,
     onSuccess: (data) => {
@@ -37,7 +34,6 @@ function AttendancePage() {
     onError: () => toast.error('Failed to save attendance'),
   });
 
-  // Handle changing the status of a student (Present/Absent)
   const handleStatusChange = (studentId, newStatus) => {
     setAttendanceMap((prev) => ({
       ...prev,
@@ -63,20 +59,39 @@ function AttendancePage() {
     saveMutation.mutate(payload);
   };
 
+  const getCourseLabel = (id) => {
+    const c = courses.find(c => c.id === id);
+    return c ? `${c.code} - ${c.title}` : '';
+  };
+
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>Attendance Management</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 2 }}>
+        <Typography variant="h4">Attendance Management</Typography>
+        {/* Export only shows when a course is selected and students are loaded */}
+        {selectedCourseId && !isLoading && students.length > 0 && (
+          <ExportButton
+            title={`Attendance Report - ${getCourseLabel(selectedCourseId)} (${attendanceDate})`}
+            fileName={`attendance_${attendanceDate}`}
+            columns={['Roll No', 'Student Name', 'Status']}
+            rows={students.map(s => [
+              s.rollNumber,
+              `${s.firstName} ${s.lastName}`,
+              attendanceMap[s.id] || 'Not Marked',
+            ])}
+          />
+        )}
+      </Box>
 
-      {/* Filters (Course & Date) */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <FormControl fullWidth>
             <InputLabel>Select Course</InputLabel>
             <Select
               value={selectedCourseId}
               onChange={(e) => {
                 setSelectedCourseId(e.target.value);
-                setAttendanceMap({}); // Reset attendance when course changes
+                setAttendanceMap({});
               }}
               label="Select Course"
             >
@@ -88,19 +103,18 @@ function AttendancePage() {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             label="Attendance Date"
             type="date"
             fullWidth
             value={attendanceDate}
             onChange={(e) => setAttendanceDate(e.target.value)}
-            InputLabelProps={{ shrink: true }}
+            slotProps={{ inputLabel: { shrink: true } }}
           />
         </Grid>
       </Grid>
 
-      {/* Loading and Error states */}
       {isLoading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <CircularProgress />
@@ -108,7 +122,6 @@ function AttendancePage() {
       )}
       {error && <Alert severity="error">Error loading students.</Alert>}
 
-      {/* Student Attendance Table */}
       {selectedCourseId && !isLoading && !error && (
         <TableContainer component={Paper}>
           <Table>
@@ -121,7 +134,7 @@ function AttendancePage() {
             </TableHead>
             <TableBody>
               {students.map((student) => {
-                const currentStatus = attendanceMap[student.id] || ''; // Default empty
+                const currentStatus = attendanceMap[student.id] || '';
                 return (
                   <TableRow key={student.id} hover>
                     <TableCell>{student.rollNumber}</TableCell>
@@ -156,7 +169,6 @@ function AttendancePage() {
         </TableContainer>
       )}
 
-      {/* Save Button */}
       {selectedCourseId && (
         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
           <Button

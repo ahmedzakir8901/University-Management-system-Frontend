@@ -12,6 +12,7 @@ import * as yup from 'yup';
 import { infrastructureService } from '../../../services/infrastructureService';
 import { toast } from 'react-hot-toast';
 import RoleGate from '../../../components/RoleGate';
+import ExportButton from '../../../components/common/ExportButton'; // <-- NEW
 
 const schema = yup.object().shape({
   roomNumber: yup.string().required('Room number is required'),
@@ -115,15 +116,28 @@ function RoomsTab() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, gap: 2 }}>
         <TextField
           size="small" placeholder="Search by room number..."
           value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
           slotProps={{ input: { startAdornment: (<InputAdornment position="start"><Search /></InputAdornment>) } }}
         />
-        <RoleGate allowedRoles={['ADMIN']}>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Room</Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Rooms Report"
+            fileName="rooms_report"
+            columns={['Room #', 'Building', 'Type', 'Capacity']}
+            rows={filtered.map(r => [
+              r.roomNumber,
+              getBuildingName(r.buildingId),
+              r.roomType.replace('_', ' '),
+              `${r.capacity} seats`,
+            ])}
+          />
+          <RoleGate allowedRoles={['ADMIN']}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Room</Button>
+          </RoleGate>
+        </Box>
       </Box>
 
       <TableContainer component={Paper} variant="outlined">

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, Button, IconButton, CircularProgress, Alert,
-  Dialog, DialogTitle, DialogContent, DialogActions, Grid, FormControl, InputLabel, Select, MenuItem, Chip
+  Dialog, DialogTitle, DialogContent, DialogActions, Grid, FormControl, InputLabel, Select, MenuItem, Chip, TextField
 } from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -12,6 +12,7 @@ import * as yup from 'yup';
 import { sectionService } from '../../../services/sectionService';
 import { toast } from 'react-hot-toast';
 import RoleGate from '../../../components/RoleGate';
+import ExportButton from '../../../components/common/ExportButton'; // <-- NEW
 
 const DAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 
@@ -104,7 +105,18 @@ function SchedulesTab() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
+        <ExportButton
+          title="Class Schedules Report"
+          fileName="class_schedules_report"
+          columns={['Section', 'Day', 'Time', 'Room']}
+          rows={(schedules || []).map(s => [
+            getSectionLabel(s.sectionId),
+            s.dayOfWeek,
+            `${s.startTime} - ${s.endTime}`,
+            `Room ${getRoomLabel(s.roomId)}`,
+          ])}
+        />
         <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
           <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Schedule</Button>
         </RoleGate>

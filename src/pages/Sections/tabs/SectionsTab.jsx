@@ -13,6 +13,7 @@ import * as yup from 'yup';
 import { sectionService } from '../../../services/sectionService';
 import { toast } from 'react-hot-toast';
 import RoleGate from '../../../components/RoleGate';
+import ExportButton from '../../../components/common/ExportButton'; // <-- NEW
 
 const schema = yup.object().shape({
   courseId: yup.number().required('Please select a course'),
@@ -90,7 +91,6 @@ function SectionsTab() {
     else createMutation.mutate(data);
   };
 
-  // Lookup helpers to display names instead of IDs
   const getCourseName = (id) => courses.find(c => c.id === id)?.code || 'Unknown';
   const getFacultyName = (id) => {
     const f = faculty.find(f => f.id === id);
@@ -108,15 +108,29 @@ function SectionsTab() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, gap: 2 }}>
         <TextField
           size="small" placeholder="Search by course code or section..."
           value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
           slotProps={{ input: { startAdornment: (<InputAdornment position="start"><Search /></InputAdornment>) } }}
         />
-        <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Section</Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Sections Report"
+            fileName="sections_report"
+            columns={['Course', 'Term', 'Section', 'Faculty', 'Enrollment']}
+            rows={filtered.map(s => [
+              getCourseName(s.courseId),
+              getTermName(s.termId),
+              s.sectionName,
+              getFacultyName(s.facultyId),
+              `${s.currentEnrollment}/${s.maxCapacity}`,
+            ])}
+          />
+          <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Section</Button>
+          </RoleGate>
+        </Box>
       </Box>
 
       <TableContainer component={Paper} variant="outlined">

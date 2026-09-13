@@ -3,7 +3,7 @@ import {
   Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, Button, IconButton, CircularProgress, Alert,
   Dialog, DialogTitle, DialogContent, DialogActions, Grid, FormControl, InputLabel, Select, MenuItem,
-  Chip
+  Chip, TextField
 } from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -13,6 +13,7 @@ import * as yup from 'yup';
 import { examService } from '../../../services/examService';
 import { toast } from 'react-hot-toast';
 import RoleGate from '../../../components/RoleGate';
+import ExportButton from '../../../components/common/ExportButton'; // <-- NEW
 
 const schema = yup.object().shape({
   examId: yup.number().required('Exam required'),
@@ -127,9 +128,22 @@ function SeatingTab() {
             ))}
           </Select>
         </FormControl>
-        <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Assign Seat</Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Exam Seating Report"
+            fileName="exam_seating_report"
+            columns={['Exam', 'Student', 'Seat #', 'Invigilator']}
+            rows={filtered.map(s => [
+              getExamLabel(s.examId),
+              getStudentLabel(s.studentId),
+              s.seatNumber,
+              getFacultyLabel(s.invigilatorFacultyId),
+            ])}
+          />
+          <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Assign Seat</Button>
+          </RoleGate>
+        </Box>
       </Box>
 
       <TableContainer component={Paper} variant="outlined">

@@ -13,6 +13,7 @@ import * as yup from 'yup';
 import { gradeService } from '../../../services/gradeService';
 import { toast } from 'react-hot-toast';
 import RoleGate from '../../../components/RoleGate';
+import ExportButton from '../../../components/common/ExportButton'; // <-- NEW
 
 const schema = yup.object().shape({
   gradeItemId: yup.number().required('Please select a grade item'),
@@ -118,9 +119,27 @@ function StudentGradesTab() {
             ))}
           </Select>
         </FormControl>
-        <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Grade</Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Student Grades Report"
+            fileName="student_grades_report"
+            columns={['Student', 'Grade Item', 'Marks', 'Percentage', 'Feedback']}
+            rows={filtered.map(g => {
+              const item = getGradeItem(g.gradeItemId);
+              const percent = item ? (g.marksObtained / item.maxMarks) * 100 : 0;
+              return [
+                getStudentLabel(g.studentId),
+                getGradeItemLabel(g.gradeItemId),
+                `${g.marksObtained} / ${item?.maxMarks || '?'}`,
+                `${percent.toFixed(1)}%`,
+                g.feedback || '-',
+              ];
+            })}
+          />
+          <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Grade</Button>
+          </RoleGate>
+        </Box>
       </Box>
 
       <TableContainer component={Paper} variant="outlined">

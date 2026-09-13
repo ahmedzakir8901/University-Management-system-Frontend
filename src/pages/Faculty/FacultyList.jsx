@@ -7,7 +7,8 @@ import { Add, Edit, Delete, Search } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { facultyService } from '../../services/facultyService';
 import FacultyFormModal from '../../components/faculty/FacultyFormModal';
-import RoleGate from '../../components/RoleGate'; // <-- NEW IMPORT
+import RoleGate from '../../components/RoleGate';
+import ExportButton from '../../components/common/ExportButton'; // <-- NEW
 
 function FacultyList() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,12 +43,26 @@ function FacultyList() {
 
   return (
     <Box>
-      {/* Header and Add Button - Only ADMIN and FACULTY can add */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
         <Typography variant="h4">Faculty</Typography>
-        <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Faculty</Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Faculty Report"
+            fileName="faculty_report"
+            columns={['Employee ID', 'Name', 'Email', 'Designation', 'Department ID', 'Specialization']}
+            rows={filteredFaculty.map(f => [
+              f.employeeId,
+              `${f.firstName} ${f.lastName}`,
+              f.email,
+              f.designation,
+              f.departmentId,
+              f.specialization,
+            ])}
+          />
+          <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Faculty</Button>
+          </RoleGate>
+        </Box>
       </Box>
 
       <Box sx={{ mb: 3 }}>
@@ -85,12 +100,9 @@ function FacultyList() {
                 <TableCell>{f.departmentId}</TableCell>
                 <TableCell>{f.specialization}</TableCell>
                 <TableCell>
-                  {/* Only ADMIN and FACULTY can edit */}
                   <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
                     <IconButton color="secondary" onClick={() => handleEdit(f)}><Edit /></IconButton>
                   </RoleGate>
-
-                  {/* Only ADMIN can delete */}
                   <RoleGate allowedRoles={['ADMIN']}>
                     <IconButton color="error" onClick={() => handleDelete(f.id)}><Delete /></IconButton>
                   </RoleGate>

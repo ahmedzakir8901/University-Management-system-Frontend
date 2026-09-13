@@ -6,6 +6,7 @@ import { libraryService } from '../../services/libraryService';
 import BookFormModal from '../../components/library/BookFormModal';
 import IssueBookModal from '../../components/library/IssueBookModal';
 import RoleGate from '../../components/RoleGate';
+import ExportButton from '../../components/common/ExportButton'; // <-- NEW
 
 function LibraryPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -51,11 +52,26 @@ function LibraryPage() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
         <Typography variant="h4">Library Management</Typography>
-        <RoleGate allowedRoles={['ADMIN', 'LIBRARIAN']}>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Book</Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Library Books Report"
+            fileName="library_books_report"
+            columns={['ISBN', 'Title', 'Author', 'Publisher', 'Available', 'Total']}
+            rows={filteredBooks.map(b => [
+              b.isbn,
+              b.title,
+              b.author,
+              b.publisher,
+              b.availableCopies,
+              b.totalCopies,
+            ])}
+          />
+          <RoleGate allowedRoles={['ADMIN', 'LIBRARIAN']}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Book</Button>
+          </RoleGate>
+        </Box>
       </Box>
 
       <Box sx={{ mb: 3 }}>

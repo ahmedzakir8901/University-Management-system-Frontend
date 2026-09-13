@@ -4,8 +4,7 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   CircularProgress, Alert, Chip, TextField, InputAdornment,
   Dialog, DialogTitle, DialogContent, DialogActions,
-  FormControl, InputLabel, Select, MenuItem,
-  LinearProgress
+  FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
 import { Add, Edit, Delete, Search, Star, TrendingUp } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,6 +14,7 @@ import * as yup from 'yup';
 import { evaluationService } from '../../services/evaluationService';
 import StarRating from '../../components/common/StarRating';
 import RoleGate from '../../components/RoleGate';
+import ExportButton from '../../components/common/ExportButton'; // <-- NEW
 import { toast } from 'react-hot-toast';
 
 const schema = yup.object().shape({
@@ -111,7 +111,6 @@ function EvaluationsPage() {
     getSectionLabel(e.sectionId).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Aggregate stats
   const getStats = () => {
     if (!evaluations || evaluations.length === 0) {
       return { avgTeaching: 0, avgContent: 0, avgOverall: 0, count: 0 };
@@ -135,14 +134,28 @@ function EvaluationsPage() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, gap: 2, flexWrap: 'wrap' }}>
         <Typography variant="h4">Course Evaluations</Typography>
-        <RoleGate allowedRoles={['ADMIN', 'STUDENT']}>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Submit Evaluation</Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Course Evaluations Report"
+            fileName="course_evaluations_report"
+            columns={['Section', 'Student', 'Teaching', 'Content', 'Overall', 'Comments']}
+            rows={filtered.map(e => [
+              getSectionLabel(e.sectionId),
+              getStudentLabel(e.studentId),
+              e.ratingTeaching,
+              e.ratingCourseContent,
+              e.ratingOverall,
+              e.comments || '-',
+            ])}
+          />
+          <RoleGate allowedRoles={['ADMIN', 'STUDENT']}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Submit Evaluation</Button>
+          </RoleGate>
+        </Box>
       </Box>
 
-      {/* Aggregate Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card elevation={2}>
@@ -191,7 +204,6 @@ function EvaluationsPage() {
         </Grid>
       </Grid>
 
-      {/* Search */}
       <Box sx={{ mb: 2 }}>
         <TextField
           fullWidth size="small" placeholder="Search by student or section..."
@@ -200,7 +212,6 @@ function EvaluationsPage() {
         />
       </Box>
 
-      {/* Evaluations Table */}
       <TableContainer component={Paper} variant="outlined">
         <Table>
           <TableHead>
@@ -243,7 +254,6 @@ function EvaluationsPage() {
         </Table>
       </TableContainer>
 
-      {/* Form Modal */}
       <Dialog open={openModal} onClose={handleClose} maxWidth="sm" fullWidth
         disableEnforceFocus disableAutoFocus disableRestoreFocus>
         <DialogTitle>{editingEval ? 'Edit Evaluation' : 'Submit Course Evaluation'}</DialogTitle>
@@ -275,7 +285,6 @@ function EvaluationsPage() {
                 )} />
               </Grid>
 
-              {/* Star Ratings */}
               <Grid size={{ xs: 12 }}>
                 <Typography variant="body2" gutterBottom>Teaching Quality</Typography>
                 <Controller name="ratingTeaching" control={control} render={({ field }) => (

@@ -11,6 +11,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { auditService } from '../../services/auditService';
 import RoleGate from '../../components/RoleGate';
+import ExportButton from '../../components/common/ExportButton'; // <-- NEW
 
 function AuditLogsPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -61,7 +62,6 @@ function AuditLogsPage() {
     return 'default';
   };
 
-  // Get unique list of action types for the filter dropdown
   const uniqueActions = [...new Set((logs || []).map(l => l.action))].sort();
 
   const filtered = (logs || []).filter(log => {
@@ -87,7 +87,6 @@ function AuditLogsPage() {
     setDateTo('');
   };
 
-  // Stats
   const stats = {
     total: logs?.length || 0,
     failedLogins: logs?.filter(l => l.action === 'LOGIN_FAILED').length || 0,
@@ -98,12 +97,27 @@ function AuditLogsPage() {
   return (
     <RoleGate allowedRoles={['ADMIN']}>
       <Box>
-        <Typography variant="h4" gutterBottom>Audit Logs</Typography>
-        <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
-          Track all system activity for security and accountability.
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 2 }}>
+          <Box>
+            <Typography variant="h4" gutterBottom>Audit Logs</Typography>
+            <Typography variant="body2" color="textSecondary">
+              Track all system activity for security and accountability.
+            </Typography>
+          </Box>
+          <ExportButton
+            title="Audit Logs Report"
+            fileName="audit_logs_report"
+            columns={['Timestamp', 'User', 'Action', 'IP Address', 'Details']}
+            rows={filtered.map(log => [
+              new Date(log.timestamp).toLocaleString(),
+              getUserLabel(log.userId),
+              log.action,
+              log.ipAddress,
+              log.details,
+            ])}
+          />
+        </Box>
 
-        {/* Stats Cards */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card elevation={2}>
@@ -139,7 +153,6 @@ function AuditLogsPage() {
           </Grid>
         </Grid>
 
-        {/* Filters */}
         <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 4 }}>
@@ -191,12 +204,10 @@ function AuditLogsPage() {
           </Grid>
         </Paper>
 
-        {/* Results count */}
         <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
           Showing {filtered.length} of {logs.length} logs
         </Typography>
 
-        {/* Logs Table */}
         <TableContainer component={Paper} variant="outlined">
           <Table>
             <TableHead>
@@ -248,7 +259,7 @@ function AuditLogsPage() {
                   <TableRow>
                     <TableCell colSpan={6} sx={{ py: 0, borderBottom: expandedRow === log.id ? undefined : 'none' }}>
                       <Collapse in={expandedRow === log.id} timeout="auto" unmountOnExit>
-                        <Box sx={{ py: 2, px: 2, bgcolor: 'grey.50' }}>
+                        <Box sx={{ py: 2, px: 2, bgcolor: 'action.hover' }}>
                           <Typography variant="subtitle2" gutterBottom>Full Details</Typography>
                           <Typography variant="body2">{log.details}</Typography>
                           <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 1 }}>

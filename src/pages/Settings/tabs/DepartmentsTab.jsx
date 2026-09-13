@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, Button, IconButton, CircularProgress, Alert, TextField, InputAdornment, Dialog,
   DialogTitle, DialogContent, DialogActions, Grid, FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
@@ -12,6 +12,7 @@ import * as yup from 'yup';
 import { settingsService } from '../../../services/settingsService';
 import { toast } from 'react-hot-toast';
 import RoleGate from '../../../components/RoleGate';
+import ExportButton from '../../../components/common/ExportButton'; // <-- NEW
 
 const schema = yup.object().shape({
   name: yup.string().required('Name is required'),
@@ -103,15 +104,27 @@ function DepartmentsTab() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, gap: 2 }}>
         <TextField
           size="small" placeholder="Search departments..."
           value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
           slotProps={{ input: { startAdornment: (<InputAdornment position="start"><Search /></InputAdornment>) } }}
         />
-        <RoleGate allowedRoles={['ADMIN']}>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Department</Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Departments Report"
+            fileName="departments_report"
+            columns={['Code', 'Name', 'Campus']}
+            rows={filtered.map(d => [
+              d.code,
+              d.name,
+              getCampusName(d.campusId),
+            ])}
+          />
+          <RoleGate allowedRoles={['ADMIN']}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Department</Button>
+          </RoleGate>
+        </Box>
       </Box>
 
       <TableContainer component={Paper} variant="outlined">

@@ -13,6 +13,7 @@ import * as yup from 'yup';
 import { enrollmentService } from '../../../services/enrollmentService';
 import { toast } from 'react-hot-toast';
 import RoleGate from '../../../components/RoleGate';
+import ExportButton from '../../../components/common/ExportButton'; // <-- NEW
 
 const schema = yup.object().shape({
   studentId: yup.number().required('Please select a student'),
@@ -128,9 +129,22 @@ function EnrollmentsTab() {
             </Select>
           </FormControl>
         </Box>
-        <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Enroll Student</Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Enrollments Report"
+            fileName="enrollments_report"
+            columns={['Student', 'Section', 'Enrolled At', 'Status']}
+            rows={filtered.map(e => [
+              getStudentLabel(e.studentId),
+              getSectionLabel(e.sectionId),
+              new Date(e.enrolledAt).toLocaleDateString(),
+              e.enrollmentStatus,
+            ])}
+          />
+          <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Enroll Student</Button>
+          </RoleGate>
+        </Box>
       </Box>
 
       <TableContainer component={Paper} variant="outlined">

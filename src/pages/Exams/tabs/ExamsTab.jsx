@@ -3,7 +3,7 @@ import {
   Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, Button, IconButton, CircularProgress, Alert,
   Dialog, DialogTitle, DialogContent, DialogActions, Grid, FormControl, InputLabel, Select, MenuItem,
-  Chip
+  Chip, TextField
 } from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -13,6 +13,7 @@ import * as yup from 'yup';
 import { examService } from '../../../services/examService';
 import { toast } from 'react-hot-toast';
 import RoleGate from '../../../components/RoleGate';
+import ExportButton from '../../../components/common/ExportButton'; // <-- NEW
 
 const EXAM_TYPES = ['MIDTERM', 'FINAL', 'SUPPLEMENTARY'];
 
@@ -114,7 +115,20 @@ function ExamsTab() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
+        <ExportButton
+          title="Exams Report"
+          fileName="exams_report"
+          columns={['Course', 'Term', 'Type', 'Date', 'Time', 'Room']}
+          rows={(exams || []).map(e => [
+            getCourseLabel(e.courseId),
+            getTermLabel(e.termId),
+            e.examType,
+            e.examDate,
+            `${e.startTime} - ${e.endTime}`,
+            `Room ${getRoomLabel(e.roomId)}`,
+          ])}
+        />
         <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
           <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Schedule Exam</Button>
         </RoleGate>

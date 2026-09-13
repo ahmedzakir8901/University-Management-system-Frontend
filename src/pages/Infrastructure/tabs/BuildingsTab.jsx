@@ -12,6 +12,7 @@ import * as yup from 'yup';
 import { infrastructureService } from '../../../services/infrastructureService';
 import { toast } from 'react-hot-toast';
 import RoleGate from '../../../components/RoleGate';
+import ExportButton from '../../../components/common/ExportButton'; // <-- NEW
 
 const schema = yup.object().shape({
   name: yup.string().required('Name is required'),
@@ -103,15 +104,27 @@ function BuildingsTab() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, gap: 2 }}>
         <TextField
           size="small" placeholder="Search buildings..."
           value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
           slotProps={{ input: { startAdornment: (<InputAdornment position="start"><Search /></InputAdornment>) } }}
         />
-        <RoleGate allowedRoles={['ADMIN']}>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Building</Button>
-        </RoleGate>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ExportButton
+            title="Buildings Report"
+            fileName="buildings_report"
+            columns={['Code', 'Name', 'Campus']}
+            rows={filtered.map(b => [
+              b.code,
+              b.name,
+              getCampusName(b.campusId),
+            ])}
+          />
+          <RoleGate allowedRoles={['ADMIN']}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Add Building</Button>
+          </RoleGate>
+        </Box>
       </Box>
 
       <TableContainer component={Paper} variant="outlined">
