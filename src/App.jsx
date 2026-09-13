@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Auth/Login';
+import Signup from './pages/Auth/Signup'; // <-- NEW: public route import
 import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import StudentList from './pages/Students/StudentList';
@@ -18,15 +19,18 @@ import ExamsPage from './pages/Exams/ExamsPage';
 import HostelPage from './pages/Hostel/HostelPage';
 import EvaluationsPage from './pages/Evaluations/EvaluationsPage';
 import AuditLogsPage from './pages/AuditLogs/AuditLogsPage';
-import ProfilePage from './pages/Profile/ProfilePage'; // <-- ADD // <--- NEW IMPORT ADDED
+import ProfilePage from './pages/Profile/ProfilePage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* ===== PUBLIC ROUTES ===== */}
         <Route path="/login" element={<Login />} />
-        
+        <Route path="/signup" element={<Signup />} /> {/* <-- MOVED HERE (was inside protected) */}
+
+        {/* ===== PROTECTED ROUTES ===== */}
         <Route
           path="/"
           element={
@@ -41,18 +45,18 @@ function App() {
           <Route path="faculty" element={<FacultyList />} />
           <Route path="sections" element={<SectionsPage />} />
           <Route path="enrollments" element={<EnrollmentsPage />} />
-          <Route path="grades" element={<GradesPage />} /> {/* <--- NEW ROUTE ADDED */}
+          <Route path="grades" element={<GradesPage />} />
           <Route path="attendance" element={<AttendancePage />} />
           <Route path="finance" element={<FinancePage />} />
           <Route path="library" element={<LibraryPage />} />
           <Route path="notifications" element={<NotificationsPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="infrastructure" element={<InfrastructurePage />} />
-          <Route path="exams" element={<ExamsPage />} /> {/* <--- NEW ROUTE ADDED */}
-          <Route path="hostel" element={<HostelPage />} /> {/* <--- NEW ROUTE ADDED */}
-          <Route path="evaluations" element={<EvaluationsPage />} /> {/* <--- NEW ROUTE ADDED */}
-          <Route path="audit-logs" element={<AuditLogsPage />} /> {/* <--- NEW ROUTE ADDED */}
-          <Route path="profile" element={<ProfilePage />} /> {/* <-- ADD */}
+          <Route path="exams" element={<ExamsPage />} />
+          <Route path="hostel" element={<HostelPage />} />
+          <Route path="evaluations" element={<EvaluationsPage />} />
+          <Route path="audit-logs" element={<AuditLogsPage />} />
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
       </Routes>
     </BrowserRouter>
