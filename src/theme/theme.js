@@ -6,20 +6,34 @@ export const getDesignTokens = (mode) => ({
     mode,
     ...(mode === 'light'
       ? {
+          // ===== LIGHT MODE =====
           primary: { main: '#1976d2' },
           secondary: { main: '#9c27b0' },
-          background: { default: '#f4f6f8', paper: '#ffffff' },
-          text: { primary: '#1a2027', secondary: '#5f6c7b' },
+          background: {
+            default: '#f4f6f8',
+            paper: '#ffffff',
+          },
+          text: {
+            primary: '#1a2027',
+            secondary: '#5f6c7b',
+          },
           divider: 'rgba(0, 0, 0, 0.12)',
         }
       : {
+          // ===== DARK MODE (improved contrast) =====
           primary: { main: '#90caf9' },
           secondary: { main: '#ce93d8' },
-          background: { default: '#0f172a', paper: '#1e293b' },
-          text: { primary: '#f1f5f9', secondary: '#94a3b8' },
-          divider: 'rgba(255, 255, 255, 0.12)',
+          background: {
+            default: '#0d1521',   // Slightly lighter deep navy
+            paper: '#1a2332',     // Clearly distinct from default
+          },
+          text: {
+            primary: '#f8fafc',    // Very light — near white
+            secondary: '#94a3b8',  // Muted for captions
+          },
+          divider: 'rgba(255, 255, 255, 0.1)',
           action: {
-            hover: 'rgba(255, 255, 255, 0.08)',
+            hover: 'rgba(255, 255, 255, 0.06)',
             selected: 'rgba(144, 202, 249, 0.16)',
           },
         }),
@@ -31,9 +45,47 @@ export const getDesignTokens = (mode) => ({
     h6: { fontWeight: 600 },
   },
   components: {
+    // 🔑 CRITICAL FIX: Force Typography to use proper text color
+    MuiCssBaseline: {
+      styleOverrides: (theme) => ({
+        body: {
+          backgroundColor: theme.palette.background.default,
+          color: theme.palette.text.primary,
+        },
+        '#root': {
+          minHeight: '100vh',
+          backgroundColor: theme.palette.background.default,
+        },
+      }),
+    },
+    MuiTypography: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          color: theme.palette.text.primary,
+        }),
+        h1: ({ theme }) => ({ color: theme.palette.text.primary }),
+        h2: ({ theme }) => ({ color: theme.palette.text.primary }),
+        h3: ({ theme }) => ({ color: theme.palette.text.primary }),
+        h4: ({ theme }) => ({ color: theme.palette.text.primary }),
+        h5: ({ theme }) => ({ color: theme.palette.text.primary }),
+        h6: ({ theme }) => ({ color: theme.palette.text.primary }),
+        body1: ({ theme }) => ({ color: theme.palette.text.primary }),
+        body2: ({ theme }) => ({ color: theme.palette.text.primary }),
+      },
+    },
     MuiPaper: {
       styleOverrides: {
-        root: { backgroundImage: 'none' },
+        root: ({ theme }) => ({
+          backgroundImage: 'none',
+          backgroundColor: theme.palette.background.paper,
+        }),
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          backgroundColor: theme.palette.background.paper,
+        }),
       },
     },
     MuiAppBar: {
@@ -41,26 +93,26 @@ export const getDesignTokens = (mode) => ({
         root: ({ theme }) => ({
           backgroundColor: theme.palette.mode === 'light'
             ? theme.palette.primary.main
-            : '#1e293b',
-          color: theme.palette.mode === 'light' ? '#ffffff' : '#f1f5f9',
+            : '#1a2332',
+          color: theme.palette.mode === 'light' ? '#ffffff' : '#f8fafc',
         }),
       },
     },
     MuiDrawer: {
       styleOverrides: {
         paper: ({ theme }) => ({
-          backgroundColor: theme.palette.mode === 'light' ? '#ffffff' : '#1e293b',
+          backgroundColor: theme.palette.mode === 'light' ? '#ffffff' : '#1a2332',
           borderRight: `1px solid ${theme.palette.divider}`,
         }),
       },
     },
-
-    // 🔑 THE FIX: Make TextField/OutlinedInput blend into dark mode
+    // Input fields — visible borders + backgrounds
     MuiOutlinedInput: {
       styleOverrides: {
         root: ({ theme }) => ({
-          // Match the paper background so it's not a bright gray box
-          backgroundColor: theme.palette.background.paper,
+          backgroundColor: theme.palette.mode === 'light'
+            ? '#ffffff'
+            : '#0d1521',
           '& .MuiOutlinedInput-notchedOutline': {
             borderColor: theme.palette.mode === 'light'
               ? 'rgba(0, 0, 0, 0.23)'
@@ -81,8 +133,6 @@ export const getDesignTokens = (mode) => ({
         }),
       },
     },
-
-    // 🔑 Also fix the Select dropdown — its label + input need the same treatment
     MuiInputLabel: {
       styleOverrides: {
         root: ({ theme }) => ({
@@ -93,8 +143,6 @@ export const getDesignTokens = (mode) => ({
         }),
       },
     },
-
-    // Search icon inside the input should also be visible
     MuiInputAdornment: {
       styleOverrides: {
         root: ({ theme }) => ({
@@ -104,7 +152,6 @@ export const getDesignTokens = (mode) => ({
         }),
       },
     },
-
     MuiTableContainer: {
       styleOverrides: {
         root: ({ theme }) => ({
@@ -114,11 +161,22 @@ export const getDesignTokens = (mode) => ({
     },
     MuiTableCell: {
       styleOverrides: {
+        root: ({ theme }) => ({
+          borderBottom: `1px solid ${theme.palette.divider}`,
+        }),
         head: ({ theme }) => ({
           backgroundColor: theme.palette.mode === 'light'
             ? '#f5f5f5'
-            : 'rgba(255, 255, 255, 0.05)',
+            : 'rgba(255, 255, 255, 0.04)',
           fontWeight: 600,
+          color: theme.palette.text.primary,
+        }),
+      },
+    },
+    MuiListItemIcon: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          color: theme.palette.text.secondary,
         }),
       },
     },

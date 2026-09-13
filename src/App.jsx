@@ -17,7 +17,8 @@ import GradesPage from './pages/Grades/GradesPage';
 import ExamsPage from './pages/Exams/ExamsPage';
 import HostelPage from './pages/Hostel/HostelPage';
 import EvaluationsPage from './pages/Evaluations/EvaluationsPage';
-import AuditLogsPage from './pages/AuditLogs/AuditLogsPage'; // <--- NEW IMPORT ADDED
+import AuditLogsPage from './pages/AuditLogs/AuditLogsPage';
+import ProfilePage from './pages/Profile/ProfilePage'; // <-- ADD // <--- NEW IMPORT ADDED
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
           <Route path="hostel" element={<HostelPage />} /> {/* <--- NEW ROUTE ADDED */}
           <Route path="evaluations" element={<EvaluationsPage />} /> {/* <--- NEW ROUTE ADDED */}
           <Route path="audit-logs" element={<AuditLogsPage />} /> {/* <--- NEW ROUTE ADDED */}
+          <Route path="profile" element={<ProfilePage />} /> {/* <-- ADD */}
         </Route>
       </Routes>
     </BrowserRouter>
