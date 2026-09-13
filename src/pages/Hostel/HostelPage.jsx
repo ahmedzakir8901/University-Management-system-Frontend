@@ -4,6 +4,7 @@ import { Home, MeetingRoom, PersonAdd } from '@mui/icons-material';
 import HostelsTab from './tabs/HostelsTab';
 import HostelRoomsTab from './tabs/HostelRoomsTab';
 import AllocationsTab from './tabs/AllocationsTab';
+import { useAuth } from '../../context/AuthContext'; // <-- NEW
 
 function TabPanel({ children, value, index }) {
   return (
@@ -14,13 +15,22 @@ function TabPanel({ children, value, index }) {
 }
 
 function HostelPage() {
-  const [tabValue, setTabValue] = useState(0);
+  const { user } = useAuth(); // <-- Get current user
+  const isStudent = user?.role === 'STUDENT';
+
+  // Students start on the Allocations tab (index 2); Admins start on Hostels (index 0)
+  const [tabValue, setTabValue] = useState(isStudent ? 2 : 0);
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>Hostel Management</Typography>
+      {/* Dynamic title and description based on role */}
+      <Typography variant="h4" gutterBottom>
+        {isStudent ? 'My Hostel' : 'Hostel Management'}
+      </Typography>
       <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
-        Manage hostels, rooms, and student housing allocations.
+        {isStudent
+          ? 'View your current hostel room allocation.'
+          : 'Manage hostels, rooms, and student housing allocations.'}
       </Typography>
 
       <Paper elevation={2}>
@@ -31,14 +41,24 @@ function HostelPage() {
           indicatorColor="primary"
           textColor="primary"
         >
-          <Tab icon={<Home />} label="Hostels" />
-          <Tab icon={<MeetingRoom />} label="Rooms" />
-          <Tab icon={<PersonAdd />} label="Allocations" />
+          {/* Admin-only tabs */}
+          {!isStudent && <Tab icon={<Home />} label="Hostels" />}
+          {!isStudent && <Tab icon={<MeetingRoom />} label="Rooms" />}
+
+          {/* Everyone can see this tab (labeled differently for students) */}
+          <Tab icon={<PersonAdd />} label={isStudent ? 'My Allocation' : 'Allocations'} />
         </Tabs>
 
         <Box sx={{ p: 3 }}>
-          <TabPanel value={tabValue} index={0}><HostelsTab /></TabPanel>
-          <TabPanel value={tabValue} index={1}><HostelRoomsTab /></TabPanel>
+          {/* Admin-only tab panels */}
+          {!isStudent && (
+            <>
+              <TabPanel value={tabValue} index={0}><HostelsTab /></TabPanel>
+              <TabPanel value={tabValue} index={1}><HostelRoomsTab /></TabPanel>
+            </>
+          )}
+
+          {/* Everyone sees allocations */}
           <TabPanel value={tabValue} index={2}><AllocationsTab /></TabPanel>
         </Box>
       </Paper>

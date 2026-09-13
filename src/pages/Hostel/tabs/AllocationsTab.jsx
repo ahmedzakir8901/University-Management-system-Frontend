@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Button, IconButton, CircularProgress, Alert,
+  Paper, Button, IconButton, CircularProgress, Alert, Typography,
   Dialog, DialogTitle, DialogContent, DialogActions, Grid, FormControl, InputLabel, Select, MenuItem,
   Chip
 } from '@mui/material';
@@ -13,6 +13,7 @@ import * as yup from 'yup';
 import { hostelService } from '../../../services/hostelService';
 import { toast } from 'react-hot-toast';
 import RoleGate from '../../../components/RoleGate';
+import { useAuth } from '../../../context/AuthContext'; // <-- NEW IMPORT
 
 const schema = yup.object().shape({
   studentId: yup.number().required('Student required'),
@@ -20,6 +21,9 @@ const schema = yup.object().shape({
 });
 
 function AllocationsTab() {
+  const { user } = useAuth(); // <-- Get current user
+  const isStudent = user?.role === 'STUDENT'; // <-- Shortcut for readability
+
   const [filterStatus, setFilterStatus] = useState('ACTIVE');
   const [openModal, setOpenModal] = useState(false);
   const queryClient = useQueryClient();
@@ -88,8 +92,14 @@ function AllocationsTab() {
     return `${h?.name || 'N/A'} - Room ${r.roomNumber}`;
   };
 
-  // Filter by status (Active / Vacated)
+  // UPDATED: Filter by role AND status
   const filtered = (allocations || []).filter(a => {
+    // Students only see their own allocation, ignoring the status filter
+    if (isStudent) {
+      return a.studentId === user.id;
+    }
+
+    // Admin: apply the status filter
     if (filterStatus === 'ACTIVE') return !a.vacatedDate;
     if (filterStatus === 'VACATED') return !!a.vacatedDate;
     return true;
@@ -101,14 +111,21 @@ function AllocationsTab() {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, gap: 2 }}>
-        <FormControl size="small" sx={{ minWidth: 200 }}>
-          <InputLabel>Status</InputLabel>
-          <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} label="Status">
-            <MenuItem value="ACTIVE">Active Only</MenuItem>
-            <MenuItem value="VACATED">Vacated Only</MenuItem>
-            <MenuItem value="ALL">All</MenuItem>
-          </Select>
-        </FormControl>
+        {/* Status filter: hidden for students */}
+        {!isStudent ? (
+          <FormControl size="small" sx={{ minWidth: 200 }}>
+            <InputLabel>Status</InputLabel>
+            <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} label="Status">
+              <MenuItem value="ACTIVE">Active Only</MenuItem>
+              <MenuItem value="VACATED">Vacated Only</MenuItem>
+              <MenuItem value="ALL">All</MenuItem>
+            </Select>
+          </FormControl>
+        ) : (
+          <Box /> // Empty spacer for student view
+        )}
+
+        {/* Allocate Room button: admin only */}
         <RoleGate allowedRoles={['ADMIN']}>
           <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>Allocate Room</Button>
         </RoleGate>
@@ -118,45 +135,61 @@ function AllocationsTab() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Student</TableCell>
+              {/* Hide "Student" column for students */}
+              {!isStudent && <TableCell>Student</TableCell>}
               <TableCell>Room</TableCell>
               <TableCell>Allocated Date</TableCell>
               <TableCell>Vacated Date</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell>Actions</TableCell>
+              {/* Hide "Actions" column for students (they have nothing to click) */}
+              {!isStudent && <TableCell>Actions</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
-            {filtered.map((allocation) => (
-              <TableRow key={allocation.id} hover>
-                <TableCell>{getStudentLabel(allocation.studentId)}</TableCell>
-                <TableCell><strong>{getRoomLabel(allocation.hostelRoomId)}</strong></TableCell>
-                <TableCell>{allocation.allocatedDate}</TableCell>
-                <TableCell>{allocation.vacatedDate || '-'}</TableCell>
-                <TableCell>
-                  {allocation.vacatedDate
-                    ? <Chip label="VACATED" color="default" size="small" />
-                    : <Chip label="ACTIVE" color="success" size="small" />}
-                </TableCell>
-                <TableCell>
-                  <RoleGate allowedRoles={['ADMIN']}>
-                    {!allocation.vacatedDate && (
-                      <IconButton size="small" color="warning" title="Vacate Room"
-                        onClick={() => {
-                          if (window.confirm('Mark this student as vacated?'))
-                            vacateMutation.mutate(allocation.id);
-                        }}>
-                        <Logout />
-                      </IconButton>
-                    )}
-                    <IconButton size="small" color="error" onClick={() => {
-                      if (window.confirm('Permanently delete this allocation?'))
-                        deleteMutation.mutate(allocation.id);
-                    }}><Delete /></IconButton>
-                  </RoleGate>
+            {filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={isStudent ? 4 : 6} align="center">
+                  <Typography variant="body2" color="textSecondary" sx={{ py: 3 }}>
+                    {isStudent
+                      ? 'You have no hostel allocation on record.'
+                      : 'No allocations found for this filter.'}
+                  </Typography>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              filtered.map((allocation) => (
+                <TableRow key={allocation.id} hover>
+                  {!isStudent && <TableCell>{getStudentLabel(allocation.studentId)}</TableCell>}
+                  <TableCell><strong>{getRoomLabel(allocation.hostelRoomId)}</strong></TableCell>
+                  <TableCell>{allocation.allocatedDate}</TableCell>
+                  <TableCell>{allocation.vacatedDate || '-'}</TableCell>
+                  <TableCell>
+                    {allocation.vacatedDate
+                      ? <Chip label="VACATED" color="default" size="small" />
+                      : <Chip label="ACTIVE" color="success" size="small" />}
+                  </TableCell>
+                  {!isStudent && (
+                    <TableCell>
+                      <RoleGate allowedRoles={['ADMIN']}>
+                        {!allocation.vacatedDate && (
+                          <IconButton size="small" color="warning" title="Vacate Room"
+                            onClick={() => {
+                              if (window.confirm('Mark this student as vacated?'))
+                                vacateMutation.mutate(allocation.id);
+                            }}>
+                            <Logout />
+                          </IconButton>
+                        )}
+                        <IconButton size="small" color="error" onClick={() => {
+                          if (window.confirm('Permanently delete this allocation?'))
+                            deleteMutation.mutate(allocation.id);
+                        }}><Delete /></IconButton>
+                      </RoleGate>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
