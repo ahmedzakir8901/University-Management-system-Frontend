@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Box, Typography, Tabs, Tab, Paper } from '@mui/material';
-import { Business, AccountTree, CalendarMonth } from '@mui/icons-material';
+import { Business, AccountTree, CalendarMonth, Lock } from '@mui/icons-material';
 import CampusesTab from './tabs/CampusesTab';
 import DepartmentsTab from './tabs/DepartmentsTab';
 import TermsTab from './tabs/TermsTab';
+import PermissionsTab from './tabs/PermissionsTab'; // <-- NEW
 
 function TabPanel({ children, value, index }) {
   return (
@@ -20,7 +21,7 @@ function SettingsPage() {
     <Box>
       <Typography variant="h4" gutterBottom>Settings</Typography>
       <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
-        Manage academic structure: campuses, departments, and terms.
+        Manage academic structure and access control.
       </Typography>
 
       <Paper elevation={2}>
@@ -34,12 +35,14 @@ function SettingsPage() {
           <Tab icon={<Business />} label="Campuses" />
           <Tab icon={<AccountTree />} label="Departments" />
           <Tab icon={<CalendarMonth />} label="Academic Terms" />
+          <Tab icon={<Lock />} label="Permissions" /> {/* <-- NEW */}
         </Tabs>
 
         <Box sx={{ p: 3 }}>
           <TabPanel value={tabValue} index={0}><CampusesTab /></TabPanel>
           <TabPanel value={tabValue} index={1}><DepartmentsTab /></TabPanel>
           <TabPanel value={tabValue} index={2}><TermsTab /></TabPanel>
+          <TabPanel value={tabValue} index={3}><PermissionsTab /></TabPanel> {/* <-- NEW */}
         </Box>
       </Paper>
     </Box>
