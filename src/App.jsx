@@ -5,10 +5,10 @@ import ForgotPassword from './pages/Auth/ForgotPassword';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import StudentList from './pages/Students/StudentList';
-import CoursesPage from './pages/Courses/CoursesPage'; // <-- CHANGED: was CourseList
+import CoursesPage from './pages/Courses/CoursesPage';
 import FacultyList from './pages/Faculty/FacultyList';
 import AttendancePage from './pages/Attendance/AttendancePage';
-import FinancePage from './pages/Finance/FinancePage';
+import FinancePage from './pages/Finance/FinancePage'; // <-- FIXED: was tabs/InvoicesTab
 import LibraryPage from './pages/Library/LibraryPage';
 import NotificationsPage from './pages/Notifications/NotificationsPage';
 import SettingsPage from './pages/Settings/SettingsPage';
@@ -43,7 +43,7 @@ function App() {
         >
           <Route index element={<Dashboard />} />
           <Route path="students" element={<StudentList />} />
-          <Route path="courses" element={<CoursesPage />} /> {/* <-- CHANGED: was <CourseList /> */}
+          <Route path="courses" element={<CoursesPage />} />
           <Route path="faculty" element={<FacultyList />} />
           <Route path="sections" element={<SectionsPage />} />
           <Route path="enrollments" element={<EnrollmentsPage />} />
