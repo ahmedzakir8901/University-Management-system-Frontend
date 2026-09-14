@@ -1,17 +1,17 @@
-// src/pages/Courses/CourseList.jsx
+// src/pages/Courses/tabs/CoursesTab.jsx
 import React, { useState } from 'react';
 import {
-  Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, Button, IconButton, CircularProgress, Alert, Chip, TextField, InputAdornment
 } from '@mui/material';
 import { Add, Edit, Delete, Search } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { courseService } from '../../services/courseService';
-import CourseFormModal from '../../components/courses/CourseFormModal';
-import RoleGate from '../../components/RoleGate';
-import ExportButton from '../../components/common/ExportButton'; // <-- NEW
+import { courseService } from '../../../services/courseService';       // <-- 3 dots now
+import CourseFormModal from '../../../components/courses/CourseFormModal'; // <-- 3 dots now
+import RoleGate from '../../../components/RoleGate';                     // <-- 3 dots now
+import ExportButton from '../../../components/common/ExportButton';      // <-- 3 dots now
 
-function CourseList() {
+function CoursesTab() {
   const [searchTerm, setSearchTerm] = useState('');
   const [openModal, setOpenModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
@@ -43,9 +43,18 @@ function CourseList() {
 
   return (
     <Box>
-      {/* Header with Export + Add buttons */}
+      {/* Header row: Search on the left, buttons on the right */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-        <Typography variant="h4">Courses</Typography>
+        <TextField
+          size="small"
+          placeholder="Search by course code or title..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          sx={{ flexGrow: 1, maxWidth: 500 }}
+          slotProps={{
+            input: { startAdornment: (<InputAdornment position="start"><Search /></InputAdornment>) }
+          }}
+        />
         <Box sx={{ display: 'flex', gap: 2 }}>
           <ExportButton
             title="Courses Report"
@@ -65,17 +74,7 @@ function CourseList() {
         </Box>
       </Box>
 
-      <Box sx={{ mb: 3 }}>
-        <TextField
-          fullWidth variant="outlined" placeholder="Search by course code or title..."
-          value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-          slotProps={{
-            input: { startAdornment: (<InputAdornment position="start"><Search /></InputAdornment>) }
-          }}
-        />
-      </Box>
-
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} variant="outlined">
         <Table>
           <TableHead>
             <TableRow>
@@ -95,14 +94,22 @@ function CourseList() {
                 <TableCell>{course.departmentId}</TableCell>
                 <TableCell>{course.credits}</TableCell>
                 <TableCell>
-                  <Chip label={course.isElective ? 'Elective' : 'Core'} color={course.isElective ? 'warning' : 'primary'} size="small" />
+                  <Chip
+                    label={course.isElective ? 'Elective' : 'Core'}
+                    color={course.isElective ? 'warning' : 'primary'}
+                    size="small"
+                  />
                 </TableCell>
                 <TableCell>
                   <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
-                    <IconButton color="secondary" onClick={() => handleEdit(course)}><Edit /></IconButton>
+                    <IconButton size="small" color="secondary" onClick={() => handleEdit(course)}>
+                      <Edit />
+                    </IconButton>
                   </RoleGate>
                   <RoleGate allowedRoles={['ADMIN']}>
-                    <IconButton color="error" onClick={() => handleDelete(course.id)}><Delete /></IconButton>
+                    <IconButton size="small" color="error" onClick={() => handleDelete(course.id)}>
+                      <Delete />
+                    </IconButton>
                   </RoleGate>
                 </TableCell>
               </TableRow>
@@ -116,4 +123,4 @@ function CourseList() {
   );
 }
 
-export default CourseList;
+export default CoursesTab;

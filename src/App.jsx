@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/Signup';
-import ForgotPassword from './pages/Auth/ForgotPassword'; // <-- NEW: moved up with other public routes
+import ForgotPassword from './pages/Auth/ForgotPassword';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import StudentList from './pages/Students/StudentList';
-import CourseList from './pages/Courses/CourseList';
+import CoursesPage from './pages/Courses/CoursesPage'; // <-- CHANGED: was CourseList
 import FacultyList from './pages/Faculty/FacultyList';
 import AttendancePage from './pages/Attendance/AttendancePage';
 import FinancePage from './pages/Finance/FinancePage';
@@ -30,7 +30,7 @@ function App() {
         {/* ===== PUBLIC ROUTES ===== */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} /> {/* <-- MOVED HERE (was inside protected) */}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* ===== PROTECTED ROUTES ===== */}
         <Route
@@ -43,7 +43,7 @@ function App() {
         >
           <Route index element={<Dashboard />} />
           <Route path="students" element={<StudentList />} />
-          <Route path="courses" element={<CourseList />} />
+          <Route path="courses" element={<CoursesPage />} /> {/* <-- CHANGED: was <CourseList /> */}
           <Route path="faculty" element={<FacultyList />} />
           <Route path="sections" element={<SectionsPage />} />
           <Route path="enrollments" element={<EnrollmentsPage />} />
