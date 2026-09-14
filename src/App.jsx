@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Auth/Login';
-import Signup from './pages/Auth/Signup'; // <-- NEW: public route import
+import Signup from './pages/Auth/Signup';
+import ForgotPassword from './pages/Auth/ForgotPassword'; // <-- NEW: moved up with other public routes
 import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import StudentList from './pages/Students/StudentList';
@@ -28,7 +29,8 @@ function App() {
       <Routes>
         {/* ===== PUBLIC ROUTES ===== */}
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} /> {/* <-- MOVED HERE (was inside protected) */}
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} /> {/* <-- MOVED HERE (was inside protected) */}
 
         {/* ===== PROTECTED ROUTES ===== */}
         <Route

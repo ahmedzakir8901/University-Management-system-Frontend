@@ -100,6 +100,19 @@ function Login() {
             }}
           />
 
+          {/* NEW: Forgot Password link under the password field */}
+          <Box sx={{ textAlign: 'right', mt: 0.5 }}>
+            <Link
+              component={RouterLink}
+              to="/forgot-password"
+              variant="body2"
+              underline="hover"
+              sx={{ fontSize: 14 }}
+            >
+              Forgot Password?
+            </Link>
+          </Box>
+
           {/* Role dropdown (for testing until backend is ready) */}
           <FormControl fullWidth margin="normal">
             <InputLabel>Role</InputLabel>
@@ -124,7 +137,7 @@ function Login() {
             Login
           </Button>
 
-          {/* NEW: Sign up link */}
+          {/* Sign up link */}
           <Typography variant="body2" align="center" sx={{ mt: 3 }}>
             Don't have an account?{' '}
             <Link
