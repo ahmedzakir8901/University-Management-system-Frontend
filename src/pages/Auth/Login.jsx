@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
-  Box, TextField, Button, Typography, Alert, MenuItem, Select,
-  InputLabel, FormControl, Link, InputAdornment, IconButton
+  Box, TextField, Button, Typography, Alert, Link,
+  InputAdornment, IconButton
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { toast } from 'react-hot-toast';
@@ -11,25 +11,35 @@ import { toast } from 'react-hot-toast';
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('ADMIN');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
     if (!email || !password) {
       setError('Please fill all fields');
       return;
     }
+
     try {
-      await login(email, password, role);
-      toast.success(`Logged in as ${role}`);
+      setLoading(true);
+      const user = await login(email, password);
+      toast.success(`Welcome, ${user.name}!`);
       navigate('/');
     } catch (err) {
-      setError(err.message || 'Login failed');
+      // Show backend error message if available, otherwise fallback
+      setError(
+        err.response?.data?.message ||
+        err.message ||
+        'Login failed. Please check your credentials.'
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -77,6 +87,7 @@ function Login() {
             fullWidth
             margin="normal"
             required
+            autoComplete="email"
           />
 
           <TextField
@@ -87,11 +98,16 @@ function Login() {
             fullWidth
             margin="normal"
             required
+            autoComplete="current-password"
             slotProps={{
               input: {
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                      size="small"
+                    >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
@@ -100,7 +116,7 @@ function Login() {
             }}
           />
 
-          {/* NEW: Forgot Password link under the password field */}
+          {/* Forgot Password link */}
           <Box sx={{ textAlign: 'right', mt: 0.5 }}>
             <Link
               component={RouterLink}
@@ -113,31 +129,17 @@ function Login() {
             </Link>
           </Box>
 
-          {/* Role dropdown (for testing until backend is ready) */}
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Role</InputLabel>
-            <Select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              label="Role"
-            >
-              <MenuItem value="ADMIN">Admin</MenuItem>
-              <MenuItem value="FACULTY">Faculty</MenuItem>
-              <MenuItem value="STUDENT">Student</MenuItem>
-            </Select>
-          </FormControl>
-
           <Button
             type="submit"
             variant="contained"
             fullWidth
             size="large"
             sx={{ mt: 3, py: 1.5 }}
+            disabled={loading}
           >
-            Login
+            {loading ? 'Logging in...' : 'Login'}
           </Button>
 
-          {/* Sign up link */}
           <Typography variant="body2" align="center" sx={{ mt: 3 }}>
             Don't have an account?{' '}
             <Link

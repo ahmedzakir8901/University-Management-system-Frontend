@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
-  Box, TextField, Button, Typography, Alert, Grid, FormControl, InputLabel,
-  Select, MenuItem, InputAdornment, IconButton, Divider, Paper, Link,
+  Box, TextField, Button, Typography, Alert, Grid,
+  FormControl, InputLabel, Select, MenuItem,
+  InputAdornment, IconButton, Divider, Paper, Link,
   CircularProgress, Checkbox, FormControlLabel
 } from '@mui/material';
 import {
-  Visibility, VisibilityOff, Person, Email, Phone, Cake, Lock, 
-  School, ArrowBack, Badge
+  Visibility, VisibilityOff, Person, Email, Phone, Lock,
+  ArrowBack, Badge
 } from '@mui/icons-material';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -15,7 +16,23 @@ import * as yup from 'yup';
 import { toast } from 'react-hot-toast';
 import { authService } from '../../services/authService';
 
-// Validation schema — matches your users table requirements
+// ==================== HELPERS ====================
+const calculateAge = (dob) => {
+  if (!dob) return null;
+  const birthDate = new Date(dob);
+  if (isNaN(birthDate)) return null;
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
+
+const TODAY = new Date().toISOString().split('T')[0];
+
+// ==================== VALIDATION SCHEMA ====================
 const schema = yup.object().shape({
   firstName: yup.string().required('First name is required').max(50),
   middleName: yup.string().max(50),
@@ -30,7 +47,12 @@ const schema = yup.object().shape({
     .oneOf([yup.ref('password'), null], 'Passwords do not match')
     .required('Please confirm your password'),
   gender: yup.string().required('Gender is required'),
-  dateOfBirth: yup.string().required('Date of birth is required'),
+  dateOfBirth: yup.string()
+    .required('Date of birth is required')
+    .test('min-age', 'You must be at least 15 years old', (value) => {
+      if (!value) return false;
+      return calculateAge(value) >= 15;
+    }),
   phoneNumber: yup.string().matches(/^[0-9+\-\s()]*$/, 'Invalid phone number'),
   role: yup.string().required('Please select a role'),
   terms: yup.boolean().oneOf([true], 'You must accept the terms'),
@@ -58,7 +80,6 @@ function Signup() {
       setLoading(true);
       setServerError('');
 
-      // Remove confirmPassword before sending to backend
       const { confirmPassword, terms, ...userData } = data;
 
       await authService.signup(userData);
@@ -66,7 +87,11 @@ function Signup() {
       toast.success('Account created successfully! Please log in.');
       navigate('/login');
     } catch (err) {
-      setServerError(err.message || 'Registration failed. Please try again.');
+      setServerError(
+        err.response?.data?.message ||
+        err.message ||
+        'Registration failed. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
@@ -120,7 +145,7 @@ function Signup() {
 
         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={2}>
-            {/* Name Section */}
+            {/* ===== Name Section ===== */}
             <Grid size={{ xs: 12, sm: 5 }}>
               <Controller
                 name="firstName"
@@ -164,7 +189,7 @@ function Signup() {
               />
             </Grid>
 
-            {/* Email */}
+            {/* ===== Email (full width) ===== */}
             <Grid size={{ xs: 12 }}>
               <Controller
                 name="email"
@@ -185,7 +210,7 @@ function Signup() {
               />
             </Grid>
 
-            {/* Phone */}
+            {/* ===== Phone (half) + Gender (half) ===== */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name="phoneNumber"
@@ -204,9 +229,7 @@ function Signup() {
                 )}
               />
             </Grid>
-
-            {/* Gender */}
-            <Grid size={{ xs: 12, sm: 3 }}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name="gender"
                 control={control}
@@ -223,30 +246,37 @@ function Signup() {
               />
             </Grid>
 
-            {/* Date of Birth */}
-            <Grid size={{ xs: 12, sm: 3 }}>
+            {/* ===== Date of Birth (half) + Role (half) ===== */}
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name="dateOfBirth"
                 control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Date of Birth *"
-                    type="date"
-                    fullWidth
-                    error={!!errors.dateOfBirth}
-                    helperText={errors.dateOfBirth?.message}
-                    slotProps={{
-                      inputLabel: { shrink: true },
-                      input: { startAdornment: (<InputAdornment position="start"><Cake fontSize="small" /></InputAdornment>) }
-                    }}
-                  />
-                )}
+                render={({ field }) => {
+                  const age = calculateAge(field.value);
+                  return (
+                    <TextField
+                      {...field}
+                      label="Date of Birth *"
+                      type="date"
+                      fullWidth
+                      error={!!errors.dateOfBirth}
+                      helperText={
+                        errors.dateOfBirth?.message ||
+                        (age !== null ? `Age: ${age} years` : 'Format: MM/DD/YYYY')
+                      }
+                      slotProps={{
+                        inputLabel: { shrink: true },
+                        htmlInput: {
+                          min: '1900-01-01',
+                          max: TODAY,
+                        },
+                      }}
+                    />
+                  );
+                }}
               />
             </Grid>
-
-            {/* Role */}
-            <Grid size={{ xs: 12 }}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name="role"
                 control={control}
@@ -263,7 +293,7 @@ function Signup() {
               />
             </Grid>
 
-            {/* Password Section */}
+            {/* ===== Password Section ===== */}
             <Grid size={{ xs: 12 }}>
               <Divider sx={{ my: 1 }}>
                 <Typography variant="caption" color="text.secondary">Password</Typography>
@@ -328,7 +358,7 @@ function Signup() {
               />
             </Grid>
 
-            {/* Terms */}
+            {/* ===== Terms ===== */}
             <Grid size={{ xs: 12 }}>
               <Controller
                 name="terms"
@@ -353,7 +383,7 @@ function Signup() {
               />
             </Grid>
 
-            {/* Submit */}
+            {/* ===== Submit ===== */}
             <Grid size={{ xs: 12 }}>
               <Button
                 type="submit"
@@ -368,7 +398,7 @@ function Signup() {
               </Button>
             </Grid>
 
-            {/* Login link */}
+            {/* ===== Login link ===== */}
             <Grid size={{ xs: 12 }}>
               <Typography variant="body2" align="center" sx={{ mt: 2 }}>
                 Already have an account?{' '}
