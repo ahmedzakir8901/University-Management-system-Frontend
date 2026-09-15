@@ -3,17 +3,19 @@ import {
   Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, Button, IconButton, CircularProgress, Alert, TextField, InputAdornment, Chip
 } from '@mui/material';
-import { Add, Edit, Delete, Search } from '@mui/icons-material';
+import { Add, Edit, Delete, Search, Visibility } from '@mui/icons-material'; // <-- Added Visibility
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { facultyService } from '../../services/facultyService';
 import FacultyFormModal from '../../components/faculty/FacultyFormModal';
+import FacultyDetailsModal from '../../components/faculty/FacultyDetailsModal'; // <-- NEW
 import RoleGate from '../../components/RoleGate';
-import ExportButton from '../../components/common/ExportButton'; // <-- NEW
+import ExportButton from '../../components/common/ExportButton';
 
 function FacultyList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [openModal, setOpenModal] = useState(false);
   const [editingFaculty, setEditingFaculty] = useState(null);
+  const [viewingFacultyId, setViewingFacultyId] = useState(null); // <-- NEW
 
   const { data: faculty, isLoading, error } = useQuery({
     queryKey: ['faculty'],
@@ -40,6 +42,7 @@ function FacultyList() {
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this faculty member?')) deleteMutation.mutate(id);
   };
+  const handleView = (id) => { setViewingFacultyId(id); }; // <-- NEW
 
   return (
     <Box>
@@ -100,6 +103,11 @@ function FacultyList() {
                 <TableCell>{f.departmentId}</TableCell>
                 <TableCell>{f.specialization}</TableCell>
                 <TableCell>
+                  {/* Everyone can view */}
+                  <IconButton color="primary" onClick={() => handleView(f.id)} title="View Details">
+                    <Visibility />
+                  </IconButton>
+
                   <RoleGate allowedRoles={['ADMIN', 'FACULTY']}>
                     <IconButton color="secondary" onClick={() => handleEdit(f)}><Edit /></IconButton>
                   </RoleGate>
@@ -114,6 +122,12 @@ function FacultyList() {
       </TableContainer>
 
       <FacultyFormModal open={openModal} onClose={() => setOpenModal(false)} faculty={editingFaculty} />
+
+      <FacultyDetailsModal
+        open={!!viewingFacultyId}
+        onClose={() => setViewingFacultyId(null)}
+        facultyId={viewingFacultyId}
+      />
     </Box>
   );
 }

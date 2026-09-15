@@ -35,7 +35,6 @@ function FacultyDetailsModal({ open, onClose, facultyId }) {
     if (!open) setTabValue(0);
   }, [open]);
 
-  // ==================== HELPERS ====================
   const getDesignationColor = (designation) => {
     switch (designation) {
       case 'Professor': return 'error';
@@ -90,7 +89,6 @@ function FacultyDetailsModal({ open, onClose, facultyId }) {
         </>
       ) : (
         <>
-          {/* ===== Header ===== */}
           <DialogTitle sx={{ pb: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Avatar
@@ -122,7 +120,6 @@ function FacultyDetailsModal({ open, onClose, facultyId }) {
             </Box>
           </DialogTitle>
 
-          {/* ===== Tabs ===== */}
           <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3 }}>
             <Tabs
               value={tabValue}
@@ -139,7 +136,7 @@ function FacultyDetailsModal({ open, onClose, facultyId }) {
           </Box>
 
           <DialogContent sx={{ minHeight: 400 }}>
-            {/* ============ TAB 1: OVERVIEW ============ */}
+            {/* TAB 1: OVERVIEW */}
             <TabPanel value={tabValue} index={0}>
               <Grid container spacing={2} sx={{ mb: 3 }}>
                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -177,13 +174,13 @@ function FacultyDetailsModal({ open, onClose, facultyId }) {
               <Typography variant="subtitle1" fontWeight="bold" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <WorkspacePremium fontSize="small" /> Qualification
               </Typography>
-              <Paper variant="outlined" sx={{ p: 2 }}>
+              <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
                 <Typography variant="body2">
                   {faculty.qualification || 'Not provided'}
                 </Typography>
               </Paper>
 
-              <Typography variant="subtitle1" fontWeight="bold" gutterBottom sx={{ mt: 3 }}>
+              <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
                 Specialization
               </Typography>
               <Paper variant="outlined" sx={{ p: 2 }}>
@@ -193,7 +190,7 @@ function FacultyDetailsModal({ open, onClose, facultyId }) {
               </Paper>
             </TabPanel>
 
-            {/* ============ TAB 2: TEACHING ============ */}
+            {/* TAB 2: TEACHING */}
             <TabPanel value={tabValue} index={1}>
               <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
                 Sections Taught
@@ -274,7 +271,7 @@ function FacultyDetailsModal({ open, onClose, facultyId }) {
               )}
             </TabPanel>
 
-            {/* ============ TAB 3: STUDENTS ============ */}
+            {/* TAB 3: STUDENTS */}
             <TabPanel value={tabValue} index={2}>
               <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
                 Students in My Sections
@@ -307,11 +304,10 @@ function FacultyDetailsModal({ open, onClose, facultyId }) {
               )}
             </TabPanel>
 
-            {/* ============ TAB 4: EVALUATIONS ============ */}
+            {/* TAB 4: EVALUATIONS */}
             <TabPanel value={tabValue} index={3}>
               {faculty.evaluations && faculty.evaluations.totalSubmissions > 0 ? (
                 <>
-                  {/* Summary Cards */}
                   <Grid container spacing={2} sx={{ mb: 3 }}>
                     <Grid size={{ xs: 12, sm: 3 }}>
                       <Card variant="outlined">
@@ -382,15 +378,9 @@ function FacultyDetailsModal({ open, onClose, facultyId }) {
                               <TableCell>{e.courseCode}</TableCell>
                               <TableCell>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                  <Typography variant="caption">
-                                    Teaching: {e.ratingTeaching}/5
-                                  </Typography>
-                                  <Typography variant="caption">
-                                    Content: {e.ratingContent}/5
-                                  </Typography>
-                                  <Typography variant="caption">
-                                    Overall: {e.ratingOverall}/5
-                                  </Typography>
+                                  <Typography variant="caption">Teaching: {e.ratingTeaching}/5</Typography>
+                                  <Typography variant="caption">Content: {e.ratingContent}/5</Typography>
+                                  <Typography variant="caption">Overall: {e.ratingOverall}/5</Typography>
                                 </Box>
                               </TableCell>
                               <TableCell sx={{ maxWidth: 280 }}>
@@ -410,7 +400,7 @@ function FacultyDetailsModal({ open, onClose, facultyId }) {
               )}
             </TabPanel>
 
-            {/* ============ TAB 5: INVIGILATION ============ */}
+            {/* TAB 5: INVIGILATION */}
             <TabPanel value={tabValue} index={4}>
               <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
                 Exam Invigilation Duties
@@ -434,11 +424,7 @@ function FacultyDetailsModal({ open, onClose, facultyId }) {
                           <TableCell>{inv.startTime} - {inv.endTime}</TableCell>
                           <TableCell><strong>{inv.courseCode}</strong></TableCell>
                           <TableCell>
-                            <Chip
-                              label={inv.examType}
-                              size="small"
-                              color={getExamTypeColor(inv.examType)}
-                            />
+                            <Chip label={inv.examType} size="small" color={getExamTypeColor(inv.examType)} />
                           </TableCell>
                           <TableCell>Room {inv.room}</TableCell>
                         </TableRow>
