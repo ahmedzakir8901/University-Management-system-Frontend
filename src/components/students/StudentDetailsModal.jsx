@@ -8,12 +8,17 @@ import {
 import {
   Person, School, EventAvailable, Grade, AccountBalance,
   Email, Badge, CalendarMonth, Home, Phone, History, FileDownload
-} from '@mui/icons-material'; // <-- Added History + FileDownload
+} from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import { studentService } from '../../services/studentService';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { formatDate } from '../../utils/formatDate';
-import { exportToPDF } from '../../utils/exportUtils'; // <-- NEW
+import { exportToPDF } from '../../utils/exportUtils';
+// ============ NEW: Recharts imports for GPA trend chart ============
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, ReferenceLine
+} from 'recharts';
 
 function TabPanel({ children, value, index }) {
   return (
@@ -80,6 +85,26 @@ function StudentDetailsModal({ open, onClose, studentId }) {
     if (g >= 3.0) return 'primary';
     if (g >= 2.0) return 'warning';
     return 'error';
+  };
+
+  // ==================== GPA TREND DATA BUILDER ====================
+  const buildGpaTrendData = () => {
+    if (!student?.semesterGrades?.length) return [];
+    let runningCredits = 0;
+    let runningQualityPoints = 0;
+    return student.semesterGrades.map((sem) => {
+      const semCredits = sem.courses.reduce((s, c) => s + c.credits, 0);
+      const semQualityPoints = sem.courses.reduce((s, c) => s + c.gradePoint * c.credits, 0);
+      const semGpa = semCredits > 0 ? semQualityPoints / semCredits : 0;
+      runningCredits += semCredits;
+      runningQualityPoints += semQualityPoints;
+      const runningCgpa = runningCredits > 0 ? runningQualityPoints / runningCredits : 0;
+      return {
+        name: sem.termName,
+        gpa: Number(semGpa.toFixed(2)),
+        cgpa: Number(runningCgpa.toFixed(2)),
+      };
+    });
   };
 
   // ==================== DOWNLOAD TRANSCRIPT ====================
@@ -179,7 +204,7 @@ function StudentDetailsModal({ open, onClose, studentId }) {
               <Tab icon={<School />} iconPosition="start" label="Academics" />
               <Tab icon={<EventAvailable />} iconPosition="start" label="Attendance" />
               <Tab icon={<Grade />} iconPosition="start" label="Grades" />
-              <Tab icon={<History />} iconPosition="start" label="Academic Record" /> {/* NEW */}
+              <Tab icon={<History />} iconPosition="start" label="Academic Record" />
               <Tab icon={<AccountBalance />} iconPosition="start" label="Finance" />
             </Tabs>
           </Box>
@@ -455,6 +480,73 @@ function StudentDetailsModal({ open, onClose, studentId }) {
             <TabPanel value={tabValue} index={4}>
               {(student.semesterGrades || []).length > 0 ? (
                 <>
+                  {/* ===== GPA TREND CHART (NEW) ===== */}
+                  <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                    GPA Progress Over Semesters
+                  </Typography>
+                  <Card variant="outlined" sx={{ mb: 3, p: 2 }}>
+                    <Box sx={{ height: 280 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart
+                          data={buildGpaTrendData()}
+                          margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} vertical={false} />
+                          <XAxis
+                            dataKey="name"
+                            tick={{ fontSize: 12, fill: theme.palette.text.secondary }}
+                            axisLine={{ stroke: theme.palette.divider }}
+                          />
+                          <YAxis
+                            domain={[0, 4]}
+                            ticks={[0, 1, 2, 3, 4]}
+                            tick={{ fontSize: 12, fill: theme.palette.text.secondary }}
+                            axisLine={{ stroke: theme.palette.divider }}
+                            label={{ value: 'GPA', angle: -90, position: 'insideLeft', style: { fill: theme.palette.text.secondary, fontSize: 12 } }}
+                          />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: theme.palette.background.paper,
+                              border: `1px solid ${theme.palette.divider}`,
+                              borderRadius: 8,
+                            }}
+                            formatter={(value, name) => [
+                              value.toFixed(2),
+                              name === 'gpa' ? 'Semester GPA' : 'Cumulative CGPA',
+                            ]}
+                          />
+                          <Legend
+                            wrapperStyle={{ fontSize: 12 }}
+                            formatter={(value) => (value === 'gpa' ? 'Semester GPA' : 'Cumulative CGPA')}
+                          />
+                          {/* Graduation threshold line */}
+                          <ReferenceLine
+                            y={3.0}
+                            stroke="#f57c00"
+                            strokeDasharray="5 5"
+                            label={{ value: 'Min. 3.0', fill: '#f57c00', fontSize: 11, position: 'right' }}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="gpa"
+                            stroke="#1976d2"
+                            strokeWidth={3}
+                            dot={{ r: 6, fill: '#1976d2' }}
+                            activeDot={{ r: 8 }}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="cgpa"
+                            stroke="#388e3c"
+                            strokeWidth={2}
+                            strokeDasharray="5 5"
+                            dot={{ r: 5, fill: '#388e3c' }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </Box>
+                  </Card>
+
                   {/* Download Button */}
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                     <Button
@@ -548,7 +640,6 @@ function StudentDetailsModal({ open, onClose, studentId }) {
                           return student.semesterGrades.flatMap((sem, semIdx) => {
                             const rows = [];
 
-                            // Semester header row
                             rows.push(
                               <TableRow key={`sem-header-${semIdx}`} sx={{ bgcolor: 'primary.main' }}>
                                 <TableCell colSpan={8} sx={{ color: 'primary.contrastText', fontWeight: 'bold' }}>
@@ -557,7 +648,6 @@ function StudentDetailsModal({ open, onClose, studentId }) {
                               </TableRow>
                             );
 
-                            // Course rows
                             sem.courses.forEach((course) => {
                               courseCounter += 1;
                               const qualityPoints = course.gradePoint * course.credits;
@@ -580,7 +670,6 @@ function StudentDetailsModal({ open, onClose, studentId }) {
                               );
                             });
 
-                            // Semester summary row
                             const semCredits = sem.courses.reduce((sum, c) => sum + c.credits, 0);
                             const semQualityPoints = sem.courses.reduce((sum, c) => sum + c.gradePoint * c.credits, 0);
                             const semGpa = semCredits > 0 ? (semQualityPoints / semCredits).toFixed(2) : '0.00';
@@ -593,11 +682,7 @@ function StudentDetailsModal({ open, onClose, studentId }) {
                                 </TableCell>
                                 <TableCell align="center"><strong>{semCredits}</strong></TableCell>
                                 <TableCell align="center">
-                                  <Chip
-                                    label={`GPA: ${semGpa}`}
-                                    color={getGpaColor(semGpa)}
-                                    size="small"
-                                  />
+                                  <Chip label={`GPA: ${semGpa}`} color={getGpaColor(semGpa)} size="small" />
                                 </TableCell>
                                 <TableCell align="center"><strong>{semQualityPoints.toFixed(2)}</strong></TableCell>
                                 <TableCell align="center">
